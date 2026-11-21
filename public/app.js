@@ -2,94 +2,116 @@ var lista = new Array();
 var filtroAtivo = 'TODOS';
 
 var ORIGINAIS = {
-  donaren: 'Cloridrato de Trazodona', novalgina: 'Dipirona Monoidratada',
-  tylenol: 'Paracetamol', advil: 'Ibuprofeno', amoxil: 'Amoxicilina Tri-hidratada',
-  clavulin: 'Amoxicilina + Clavulanato', astro: 'Azitromicina Di-hidratada',
-  keflex: 'Cefalexina', cipro: 'Cloridrato de Ciprofloxacino',
-  flagyl: 'Metronidazol', cozaar: 'Losartana Potássica',
-  renitec: 'Maleato de Enalapril', capoten: 'Captopril',
-  lasix: 'Furosemida', selozok: 'Succinato de Metoprolol',
-  concor: 'Hemifumarato de Bisoprolol', norvasc: 'Besilato de Anlodipino',
-  zocor: 'Sinvastatina', lipitor: 'Atorvastatina Cálcica',
-  crestor: 'Rosuvastatina Cálcica', glifage: 'Cloridrato de Metformina',
-  daonil: 'Glibenclamida', amaryl: 'Glimepirida', galvus: 'Vildagliptina',
-  januvia: 'Fosfato de Sitagliptina', forxiga: 'Dapagliflozina',
-  jardiance: 'Empagliflozina', ozempic: 'Semaglutida',
-  losec: 'Omeprazol', pantozol: 'Pantoprazol Sódico',
-  nexium: 'Esomeprazol Magnésio', claritin: 'Loratadina',
-  desalex: 'Desloratadina', allegra: 'Cloridrato de Fexofenadina',
-  polaramine: 'Maleato de Dexclorfeniramina', meticorten: 'Prednisona',
-  prelone: 'Prednisolona', decadron: 'Dexametasona',
+  donaren: 'Cloridrato de Trazodona', debridat: 'Maleato de Trimebutina', digesan: 'Maleato de Trimebutina',
+  novalgina: 'Dipirona Monoidratada', tylenol: 'Paracetamol', advil: 'Ibuprofeno',
+  amoxil: 'Amoxicilina Tri-hidratada', clavulin: 'Amoxicilina + Clavulanato', astro: 'Azitromicina Di-hidratada',
+  keflex: 'Cefalexina', cipro: 'Cloridrato de Ciprofloxacino', flagyl: 'Metronidazol',
+  cozaar: 'Losartana Potássica', renitec: 'Maleato de Enalapril', capoten: 'Captopril',
+  lasix: 'Furosemida', selozok: 'Succinato de Metoprolol', concor: 'Hemifumarato de Bisoprolol',
+  norvasc: 'Besilato de Anlodipino', zocor: 'Sinvastatina', lipitor: 'Atorvastatina Cálcica',
+  crestor: 'Rosuvastatina Cálcica', glifage: 'Cloridrato de Metformina', daonil: 'Glibenclamida',
+  amaryl: 'Glimepirida', galvus: 'Vildagliptina', januvia: 'Fosfato de Sitagliptina',
+  forxiga: 'Dapagliflozina', jardiance: 'Empagliflozina', ozempic: 'Semaglutida',
+  losec: 'Omeprazol', pantozol: 'Pantoprazol Sódico', nexium: 'Esomeprazol Magnésio',
+  claritin: 'Loratadina', desalex: 'Desloratadina', allegra: 'Cloridrato de Fexofenadina',
+  polaramine: 'Maleato de Dexclorfeniramina', meticorten: 'Prednisona', prelone: 'Fosfato Sódico de Prednisolona',
+  decadron: 'Dexametasona', celestamine: 'Maleato de Dexclorfeniramina + Betametasona',
   rivotril: 'Clonazepam', valium: 'Diazepam', frontal: 'Alprazolam',
-  lexotan: 'Bromazepam', lorax: 'Lorazepam', stilnox: 'Zolpidem',
-  zoloft: 'Cloridrato de Sertralina', prozac: 'Cloridrato de Fluoxetina',
-  lexapro: 'Oxalato de Escitalopram', cipramil: 'Bromidrato de Citalopram',
-  pondera: 'Cloridrato de Paroxetina', tryptanol: 'Cloridrato de Amitriptilina',
-  efexor: 'Cloridrato de Venlafaxina', pristiq: 'Desvenlafaxina',
-  cymbalta: 'Cloridrato de Duloxetina', wellbutrin: 'Cloridrato de Bupropiona',
-  seroquel: 'Hemifumarato de Quetiapina', risperdal: 'Risperidona',
+  lexotan: 'Bromazepam', lorax: 'Lorazepam', stilnox: 'Hemitartarato de Zolpidem',
+  zoloft: 'Cloridrato de Sertralina', prozac: 'Cloridrato de Fluoxetina', lexapro: 'Oxalato de Escitalopram',
+  cipramil: 'Bromidrato de Citalopram', pondera: 'Cloridrato de Paroxetina', tryptanol: 'Cloridrato de Amitriptilina',
+  efexor: 'Cloridrato de Venlafaxina', pristiq: 'Succinato de Desvenlafaxina', cymbalta: 'Cloridrato de Duloxetina',
+  wellbutrin: 'Cloridrato de Bupropiona', seroquel: 'Hemifumarato de Quetiapina', risperdal: 'Risperidona',
   zyprexa: 'Olanzapina', haldol: 'Haloperidol', tegretol: 'Carbamazepina',
-  gardenal: 'Fenobarbital', depakene: 'Valproato de Sódio',
-  puran: 'Levotiroxina Sódica', euthyrox: 'Levotiroxina Sódica',
-  aerolin: 'Sulfato de Salbutamol', buscopan: 'Escopolamina',
-  dramin: 'Dimenidrinato', plasil: 'Metoclopramida',
-  vonau: 'Ondansetrona', cataflam: 'Diclofenaco Potássico',
-  voltaren: 'Diclofenaco Sódico', celebra: 'Celecoxibe',
-  arcoxia: 'Etoricoxibe', luftal: 'Simeticona', imosec: 'Loperamida',
-  viagra: 'Citrato de Sildenafila', cialis: 'Tadalafila',
-  xarelto: 'Rivaroxabana', eliquis: 'Apixabana', plavix: 'Clopidogrel'
+  gardenal: 'Fenobarbital', depakene: 'Valproato de Sódio', puran: 'Levotiroxina Sódica',
+  euthyrox: 'Levotiroxina Sódica', aerolin: 'Sulfato de Salbutamol', buscopan: 'Butilbrometo de Escopolamina',
+  dramin: 'Dimenidrinato', plasil: 'Cloridrato de Metoclopramida', vonau: 'Cloridrato de Ondansetrona',
+  cataflam: 'Diclofenaco Potássico', voltaren: 'Diclofenaco Sódico', celebra: 'Celecoxibe',
+  arcoxia: 'Etoricoxibe', luftal: 'Simeticona', imosec: 'Cloridrato de Loperamida',
+  abrilar: 'Extrato Seco de Hedera helix', bisolvon: 'Cloridrato de Bromexina', mucosolvan: 'Cloridrato de Ambroxol',
+  viagra: 'Citrato de Sildenafila', cialis: 'Tadalafila', xarelto: 'Rivaroxabana',
+  eliquis: 'Apixabana', plavix: 'Bissulfato de Clopidogrel'
 };
 
 var SIMILARES = {
-  aradois: 'Losartana Potássica', anador: 'Dipirona Monoidratada',
-  alivium: 'Ibuprofeno', busprofem: 'Ibuprofeno', nisulid: 'Nimesulida',
-  scaflam: 'Nimesulida', neosaldina: 'Dipirona + Isometepteno + Cafeína',
-  dorflex: 'Dipirona + Orfenadrina + Cafeína', torsilax: 'Cafeína + Carisoprodol + Diclofenaco + Paracetamol',
-  tandrilax: 'Cafeína + Carisoprodol + Diclofenaco + Paracetamol',
-  miosan: 'Ciclobenzaprina', cimegripe: 'Paracetamol + Clorfeniramina + Fenilefrina',
+  aradois: 'Losartana Potássica', anador: 'Dipirona Monoidratada', alivium: 'Ibuprofeno',
+  busprofem: 'Ibuprofeno', nisulid: 'Nimesulida', scaflam: 'Nimesulida',
+  neosaldina: 'Dipirona + Isometepteno + Cafeína', dorflex: 'Dipirona + Orfenadrina + Cafeína',
+  torsilax: 'Cafeína + Carisoprodol + Diclofenaco + Paracetamol', tandrilax: 'Cafeína + Carisoprodol + Diclofenaco + Paracetamol',
+  miosan: 'Cloridrato de Ciclobenzaprina', cimegripe: 'Paracetamol + Clorfeniramina + Fenilefrina',
   benegrip: 'Dipirona + Clorfeniramina + Cafeína', resfenol: 'Paracetamol + Clorfeniramina + Fenilefrina',
   histamin: 'Maleato de Dexclorfeniramina', hixizine: 'Cloridrato de Hidroxizina',
   daforin: 'Cloridrato de Fluoxetina', exodus: 'Oxalato de Escitalopram',
   zetron: 'Cloridrato de Bupropiona', bup: 'Cloridrato de Bupropiona',
   velija: 'Cloridrato de Duloxetina', patz: 'Hemitartarato de Zolpidem',
   levoid: 'Levotiroxina Sódica', busonid: 'Budesonida',
-  fluimucil: 'Acetilcisteína', bisolvon: 'Cloridrato de Bromexina',
+  fluimucil: 'Acetilcisteína', expec: 'Guaifenesina + Oxomemazina + Benzoato de Sódio',
+  expectamin: 'Maleato de Dexclorfeniramina + Pseudoefedrina + Guaifenesina',
+  koide: 'Betametasona + Maleato de Dexclorfeniramina', vick: 'Guaifenesina',
   nebacetin: 'Sulfato de Neomicina + Bacitracina', bepantol: 'Dexpantenol',
   enterogermina: 'Bacillus clausii', repoflor: 'Saccharomyces boulardii',
   addera: 'Colecalciferol (Vitamina D3)', noripurum: 'Ferripolimaltose',
   endofolin: 'Ácido Fólico', somalgin: 'Ácido Acetilsalicílico'
 };
-
-var GENERICOS = [
-  'trazodona', 'dipirona', 'paracetamol', 'ibuprofeno', 'amoxicilina',
-  'azitromicina', 'cefalexina', 'ciprofloxacino', 'levofloxacino', 'metronidazol',
-  'sulfametoxazol', 'fluconazol', 'itraconazol', 'cetoconazol', 'aciclovir',
-  'ivermectina', 'albendazol', 'losartana', 'enalapril', 'captopril',
-  'ramipril', 'valsartana', 'olmesartana', 'telmisartana', 'hidroclorotiazida',
-  'clortalidona', 'indapamida', 'furosemida', 'espironolactona', 'atenolol',
-  'propranolol', 'metoprolol', 'carvedilol', 'bisoprolol', 'nebivolol',
-  'anlodipino', 'sinvastatina', 'atorvastatina', 'rosuvastatina', 'ezetimiba',
-  'metformina', 'glibenclamida', 'glimepirida', 'gliclazida', 'dapagliflozina',
-  'empagliflozina', 'sitagliptina', 'vildagliptina', 'insulina', 'omeprazol',
-  'pantoprazol', 'esomeprazol', 'lansoprazol', 'domperidona', 'bromoprida',
-  'metoclopramida', 'ondansetrona', 'simeticona', 'loperamida', 'loratadina',
-  'desloratadina', 'fexofenadina', 'cetirizina', 'levocetirizina', 'dexclorfeniramina',
-  'hidroxizina', 'prometazina', 'prednisona', 'prednisolona', 'dexametasona',
-  'betametasona', 'budesonida', 'clonazepam', 'diazepam', 'alprazolam',
-  'bromazepam', 'lorazepam', 'zolpidem', 'sertralina', 'fluoxetina',
-  'escitalopram', 'citalopram', 'paroxetina', 'amitriptilina', 'nortriptilina',
-  'venlafaxina', 'desvenlafaxina', 'duloxetina', 'bupropiona', 'mirtazapina',
-  'quetiapina', 'risperidona', 'olanzapina', 'aripiprazol', 'haloperidol',
-  'litio', 'carbamazepina', 'oxcarbazepina', 'fenobarbital', 'valproato',
-  'lamotrigina', 'topiramato', 'gabapentina', 'pregabalina', 'levotiroxina',
-  'salbutamol', 'montelucaste', 'acetilcisteina', 'ambroxol', 'bromexina',
-  'escopolamina', 'dimenidrinato', 'nimesulida', 'diclofenaco', 'meloxicam',
-  'piroxicam', 'cetoprofeno', 'naproxeno', 'celecoxibe', 'etoricoxibe',
-  'tramadol', 'codeina', 'ciclobenzaprina', 'alopurinol', 'colchicina',
-  'sildenafila', 'tadalafila', 'finasterida', 'tansulosina', 'doxazosina',
-  'varfarina', 'rivaroxabana', 'apixabana', 'clopidogrel', 'acido folico',
-  'sulfato ferroso', 'colecalciferol', 'cianocobalamina'
-];
+var GENERICOS = {
+  trazodona: 'Cloridrato de Trazodona', trimebutina: 'Maleato de Trimebutina',
+  dipirona: 'Dipirona Monoidratada', paracetamol: 'Paracetamol', ibuprofeno: 'Ibuprofeno',
+  amoxicilina: 'Amoxicilina Tri-hidratada', azitromicina: 'Azitromicina Di-hidratada',
+  cefalexina: 'Cefalexina Monoidratada', ciprofloxacino: 'Cloridrato de Ciprofloxacino',
+  levofloxacino: 'Levofloxacino Hemi-hidratado', metronidazol: 'Metronidazol',
+  sulfametoxazol: 'Sulfametoxazol + Trimetoprima', fluconazol: 'Fluconazol',
+  itraconazol: 'Itraconazol', cetoconazol: 'Cetoconazol', aciclovir: 'Aciclovir',
+  ivermectina: 'Ivermectina', albendazol: 'Albendazol', losartana: 'Losartana Potássica',
+  enalapril: 'Maleato de Enalapril', captopril: 'Captopril', ramipril: 'Ramipril',
+  valsartana: 'Valsartana', olmesartana: 'Olmesartana Medoxomila', telmisartana: 'Telmisartana',
+  hidroclorotiazida: 'Hidroclorotiazida', clortalidona: 'Clortalidona', indapamida: 'Indapamida',
+  furosemida: 'Furosemida', espironolactona: 'Espironolactona', atenolol: 'Atenolol',
+  propranolol: 'Cloridrato de Propranolol', metoprolol: 'Succinato de Metoprolol',
+  carvedilol: 'Carvedilol', bisoprolol: 'Hemifumarato de Bisoprolol', nebivolol: 'Cloridrato de Nebivolol',
+  anlodipino: 'Besilato de Anlodipino', sinvastatina: 'Sinvastatina', atorvastatina: 'Atorvastatina Cálcica',
+  rosuvastatina: 'Rosuvastatina Cálcica', ezetimiba: 'Ezetimiba', metformina: 'Cloridrato de Metformina',
+  glibenclamida: 'Glibenclamida', glimepirida: 'Glimepirida', gliclazida: 'Gliclazida',
+  dapagliflozina: 'Dapagliflozina', empagliflozina: 'Empagliflozina', sitagliptina: 'Fosfato de Sitagliptina',
+  vildagliptina: 'Vildagliptina', insulina: 'Insulina Humana', omeprazol: 'Omeprazol',
+  pantoprazol: 'Pantoprazol Sódico Sesqui-hidratado', esomeprazol: 'Esomeprazol Magnésio',
+  lansoprazol: 'Lansoprazol', domperidona: 'Domperidona', bromoprida: 'Bromoprida',
+  metoclopramida: 'Cloridrato de Metoclopramida', ondansetrona: 'Cloridrato de Ondansetrona',
+  simeticona: 'Simeticona', loperamida: 'Cloridrato de Loperamida', loratadina: 'Loratadina',
+  desloratadina: 'Desloratadina', fexofenadina: 'Cloridrato de Fexofenadina',
+  cetirizina: 'Dicloridrato de Cetirizina', levocetirizina: 'Dicloridrato de Levocetirizina',
+  dexclorfeniramina: 'Maleato de Dexclorfeniramina', hidroxizina: 'Cloridrato de Hidroxizina',
+  prometazina: 'Cloridrato de Prometazina', prednisona: 'Prednisona',
+  prednisolona: 'Fosfato Sódico de Prednisolona', dexametasona: 'Dexametasona',
+  betametasona: 'Dipropionato de Betametasona', budesonida: 'Budesonida',
+  clonazepam: 'Clonazepam', diazepam: 'Diazepam', alprazolam: 'Alprazolam',
+  bromazepam: 'Bromazepam', lorazepam: 'Lorazepam', zolpidem: 'Hemitartarato de Zolpidem',
+  sertralina: 'Cloridrato de Sertralina', fluoxetina: 'Cloridrato de Fluoxetina',
+  escitalopram: 'Oxalato de Escitalopram', citalopram: 'Bromidrato de Citalopram',
+  paroxetina: 'Cloridrato de Paroxetina', amitriptilina: 'Cloridrato de Amitriptilina',
+  nortriptilina: 'Cloridrato de Nortriptilina', venlafaxina: 'Cloridrato de Venlafaxina',
+  desvenlafaxina: 'Succinato de Desvenlafaxina', duloxetina: 'Cloridrato de Duloxetina',
+  bupropiona: 'Cloridrato de Bupropiona', mirtazapina: 'Mirtazapina',
+  quetiapina: 'Hemifumarato de Quetiapina', risperidona: 'Risperidona',
+  olanzapina: 'Olanzapina', aripiprazol: 'Aripiprazol', haloperidol: 'Haloperidol',
+  litio: 'Carbonato de Lítio', carbamazepina: 'Carbamazepina', oxcarbazepina: 'Oxcarbazepina',
+  fenobarbital: 'Fenobarbital', valproato: 'Valproato de Sódio', lamotrigina: 'Lamotrigina',
+  topiramato: 'Topiramato', gabapentina: 'Gabapentina', pregabalina: 'Pregabalina',
+  levotiroxina: 'Levotiroxina Sódica', salbutamol: 'Sulfato de Salbutamol',
+  acebrofilina: 'Acebrofilina', guaifenesina: 'Guaifenesina', levodropropizina: 'Levodropropizina',
+  montelucaste: 'Montelucaste de Sódio', acetilcisteina: 'Acetilcisteína',
+  ambroxol: 'Cloridrato de Ambroxol', bromexina: 'Cloridrato de Bromexina',
+  escopolamina: 'Butilbrometo de Escopolamina', dimenidrinato: 'Dimenidrinato',
+  nimesulida: 'Nimesulida', diclofenaco: 'Diclofenaco Sódico', meloxicam: 'Meloxicam',
+  piroxicam: 'Piroxicam', cetoprofeno: 'Cetoprofeno', naproxeno: 'Naproxeno Sódico',
+  celecoxibe: 'Celecoxibe', etoricoxibe: 'Etoricoxibe', tramadol: 'Cloridrato de Tramadol',
+  codeina: 'Fosfato de Codeína', ciclobenzaprina: 'Cloridrato de Ciclobenzaprina',
+  alopurinol: 'Alopurinol', colchicina: 'Colchicina', sildenafila: 'Citrato de Sildenafila',
+  tadalafila: 'Tadalafila', finasterida: 'Finasterida', tansulosina: 'Cloridrato de Tansulosina',
+  doxazosina: 'Mesilato de Doxazosina', varfarina: 'Varfarina Sódica',
+  rivaroxabana: 'Rivaroxabana', apixabana: 'Apixabana', clopidogrel: 'Bissulfato de Clopidogrel',
+  'acido folico': 'Ácido Fólico', 'sulfato ferroso': 'Sulfato Ferroso Heptaidratado',
+  colecalciferol: 'Colecalciferol (Vitamina D3)', cianocobalamina: 'Cianocobalamina (Vitamina B12)'
+};
 
 function el(tag, cls, txt) {
   var e = document.createElement(tag);
@@ -102,23 +124,34 @@ function norm(t) {
   return (t || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').trim();
 }
 
+function detectarForma(texto) {
+  var l = norm(texto);
+  if (l.indexOf('xarope') !== -1 || l.indexOf('xpe') !== -1) return 'Xarope';
+  if (l.indexOf('gotas') !== -1 || l.indexOf('gts') !== -1) return 'Gotas';
+  if (l.indexOf('suspensao') !== -1 || l.indexOf('susp') !== -1) return 'Suspensão Oral';
+  if (l.indexOf('pomada') !== -1 || l.indexOf('creme') !== -1 || l.indexOf('gel') !== -1) return 'Pomada/Creme';
+  if (l.indexOf('spray') !== -1 || l.indexOf('nasal') !== -1) return 'Spray';
+  if (l.indexOf('injetavel') !== -1 || l.indexOf('ampola') !== -1) return 'Injetável';
+  if (l.indexOf('capsula') !== -1 || l.indexOf('caps') !== -1) return 'Cápsula';
+  if (l.indexOf('comprimido') !== -1 || l.indexOf('comp') !== -1) return 'Comprimido';
+  return '';
+}
+
 function classificarRemedio(texto) {
   var limpo = norm(texto);
   if (!limpo) return null;
+  var forma = detectarForma(texto);
   for (var o in ORIGINAIS) {
-    if (limpo.indexOf(o) !== -1) return { principio: ORIGINAIS[o], tipo: 'Original' };
+    if (limpo.indexOf(o) !== -1) return { principio: ORIGINAIS[o], tipo: 'Original', forma: forma };
   }
   for (var s in SIMILARES) {
-    if (limpo.indexOf(s) !== -1) return { principio: SIMILARES[s], tipo: 'Similar' };
+    if (limpo.indexOf(s) !== -1) return { principio: SIMILARES[s], tipo: 'Similar', forma: forma };
   }
-  for (var i = 0; i < GENERICOS.length; i++) {
-    var g = GENERICOS[i];
-    if (limpo.indexOf(g) !== -1) {
-      return { principio: g.charAt(0).toUpperCase() + g.slice(1), tipo: 'Genérico' };
-    }
+  for (var g in GENERICOS) {
+    if (limpo.indexOf(g) !== -1) return { principio: GENERICOS[g], tipo: 'Genérico', forma: forma };
   }
   var cap = texto.trim();
-  return { principio: cap.charAt(0).toUpperCase() + cap.slice(1), tipo: 'Similar' };
+  return { principio: cap.charAt(0).toUpperCase() + cap.slice(1), tipo: 'Similar', forma: forma };
 }
 function montarTela() {
   var root = document.getElementById('app');
@@ -149,7 +182,7 @@ function montarTela() {
   var busca = el('input');
   busca.id = 'busca';
   busca.autocomplete = 'off';
-  busca.placeholder = 'Buscar medicamento, substância, genérico ou similar...';
+  busca.placeholder = 'Buscar medicamento, substância, xarope, genérico...';
   busca.oninput = renderizar;
   search.appendChild(busca);
   hdrIn.appendChild(search);
@@ -184,9 +217,11 @@ function montarTela() {
   var pills = el('div', 'pills');
   [
     { k: 'TODOS', t: 'Todos' },
-    { k: 'FALTA', t: 'Em Falta' },
-    { k: 'CRITICO', t: 'Nível Crítico' },
-    { k: 'NORMAL', t: 'Disponíveis' }
+    { k: 'FALTA', t: 'Lista: Em Falta' },
+    { k: 'GENERICO', t: 'Genéricos (G)' },
+    { k: 'SIMILAR', t: 'Similares (S)' },
+    { k: 'ORIGINAL', t: 'Originais (Rx)' },
+    { k: 'XAROPE', t: 'Xaropes / Líquidos' }
   ].forEach(function(p) {
     var pb = el('button', 'pill' + (p.k === 'TODOS' ? ' active' : ''), p.t);
     pb.setAttribute('data-filtro', p.k);
@@ -195,7 +230,7 @@ function montarTela() {
   });
   bar.appendChild(pills);
 
-  var bCop = el('button', 'pill', 'Copiar Pedido WhatsApp');
+  var bCop = el('button', 'pill', 'Copiar Lista WhatsApp');
   bCop.onclick = copiarPedido;
   bar.appendChild(bCop);
   main.appendChild(bar);
@@ -229,7 +264,7 @@ function montarTela() {
 
   var fg1 = el('div', 'fg');
   var lb1 = el('label');
-  lb1.appendChild(el('span', '', 'Nome do Medicamento (dosagem opcional) *'));
+  lb1.appendChild(el('span', '', 'Medicamento (ex: Trazodona 50mg, Acebrofilina xarope) *'));
   var bTipo = el('span', '', '');
   bTipo.id = 'badge-tipo';
   bTipo.style.color = '#6d28d9';
@@ -240,7 +275,7 @@ function montarTela() {
   iNome.id = 'nome';
   iNome.autocomplete = 'off';
   iNome.required = true;
-  iNome.placeholder = 'Ex: Trazodona 50mg, Donaren ou Aradois';
+  iNome.placeholder = 'Digite o nome, forma (xarope, gotas) e dosagem opcional...';
   iNome.oninput = reconhecer;
   fg1.appendChild(iNome);
   form.appendChild(fg1);
@@ -253,10 +288,10 @@ function montarTela() {
   fg2.appendChild(iPrinc);
 
   var fg3 = el('div', 'fg');
-  fg3.appendChild(el('label', '', 'Dosagem (Opcional)'));
+  fg3.appendChild(el('label', '', 'Dosagem / Forma (Opcional)'));
   var iDose = el('input');
   iDose.id = 'dosagem';
-  iDose.placeholder = 'Ex: 50mg';
+  iDose.placeholder = 'Ex: 50mg ou Xarope';
   fg3.appendChild(iDose);
   row1.appendChild(fg2);
   row1.appendChild(fg3);
@@ -264,7 +299,7 @@ function montarTela() {
 
   var rowTipo = el('div', 'frow');
   var fgTipo = el('div', 'fg');
-  fgTipo.appendChild(el('label', '', 'Tipo (Genérico / Similar / Original)'));
+  fgTipo.appendChild(el('label', '', 'Lista / Categoria'));
   var iTipo = el('input');
   iTipo.id = 'tipo_med';
   fgTipo.appendChild(iTipo);
@@ -319,26 +354,27 @@ function reconhecer() {
   var txt = document.getElementById('nome').value;
   var partes = txt.split(' ');
   var semDose = txt;
-  var achouDose = false;
+  var doseExtraida = '';
 
   for (var i = 0; i < partes.length; i++) {
     var p = partes[i].toLowerCase();
     if (p.indexOf('mg') > 0 || p.indexOf('ml') > 0 || p.indexOf('mcg') > 0 || p.indexOf('ui') > 0 || (p.length > 1 && p.endsWith('g') && !isNaN(p[0]))) {
-      document.getElementById('dosagem').value = partes[i];
+      doseExtraida = partes[i];
       semDose = txt.replace(partes[i], '').trim();
-      achouDose = true;
     }
   }
-  if (!achouDose) document.getElementById('dosagem').value = '';
 
   var res = classificarRemedio(semDose);
   if (res) {
     document.getElementById('principio').value = res.principio;
     document.getElementById('tipo_med').value = res.tipo;
-    document.getElementById('badge-tipo').textContent = '✓ ' + res.tipo;
+    var infoForma = [doseExtraida, res.forma].filter(Boolean).join(' • ');
+    document.getElementById('dosagem').value = infoForma;
+    document.getElementById('badge-tipo').textContent = '✓ ' + res.tipo + (res.forma ? ' (' + res.forma + ')' : '');
   } else {
     document.getElementById('principio').value = '';
     document.getElementById('tipo_med').value = '';
+    document.getElementById('dosagem').value = doseExtraida;
     document.getElementById('badge-tipo').textContent = '';
   }
 }
@@ -354,6 +390,15 @@ function statusDe(x) {
   if (Number(x.estoque_atual) === 0) return 'FALTA';
   if (Number(x.estoque_atual) <= Number(x.estoque_minimo)) return 'CRITICO';
   return 'NORMAL';
+}
+
+function tipoDe(m) {
+  var uNorm = norm(m.unidade_saude);
+  if (uNorm.indexOf('generico') !== -1) return 'Genérico';
+  if (uNorm.indexOf('similar') !== -1) return 'Similar';
+  if (uNorm.indexOf('original') !== -1) return 'Original';
+  var auto = classificarRemedio(m.nome);
+  return auto ? auto.tipo : 'Original';
 }
 
 async function carregar() {
@@ -384,19 +429,32 @@ function filtrar(st) {
   renderizar();
 }
 
-function renderizar() {
+function obterFiltrados() {
   var q = norm(document.getElementById('busca').value);
-  var filtrados = lista.filter(function(m) {
-    var t = norm(m.nome).indexOf(q) !== -1 || norm(m.principio_ativo).indexOf(q) !== -1 || norm(m.unidade_saude).indexOf(q) !== -1;
-    return t && (filtroAtivo === 'TODOS' || statusDe(m) === filtroAtivo);
-  });
+  return lista.filter(function(m) {
+    var tipo = norm(tipoDe(m));
+    var forma = norm((m.dosagem || '') + ' ' + (m.nome || ''));
+    var bateBusca = norm(m.nome).indexOf(q) !== -1 || norm(m.principio_ativo).indexOf(q) !== -1 || tipo.indexOf(q) !== -1 || forma.indexOf(q) !== -1;
+    if (!bateBusca) return false;
 
+    if (filtroAtivo === 'TODOS') return true;
+    if (filtroAtivo === 'FALTA' || filtroAtivo === 'CRITICO' || filtroAtivo === 'NORMAL') return statusDe(m) === filtroAtivo;
+    if (filtroAtivo === 'GENERICO') return tipo === 'generico';
+    if (filtroAtivo === 'SIMILAR') return tipo === 'similar';
+    if (filtroAtivo === 'ORIGINAL') return tipo === 'original';
+    if (filtroAtivo === 'XAROPE') return forma.indexOf('xarope') !== -1 || forma.indexOf('gotas') !== -1 || forma.indexOf('suspensao') !== -1 || forma.indexOf('ml') !== -1;
+    return true;
+  });
+}
+
+function renderizar() {
+  var filtrados = obterFiltrados();
   var box = document.getElementById('vitrine');
   box.innerHTML = '';
 
   if (filtrados.length === 0) {
     var emp = el('div', 'empty');
-    emp.appendChild(el('h3', '', 'Nenhum medicamento encontrado'));
+    emp.appendChild(el('h3', '', 'Nenhum medicamento nesta lista'));
     var bAdd = el('button', 'btn btn-p', '+ Registrar Item');
     bAdd.style.marginTop = '12px';
     bAdd.onclick = abrirModalNovo;
@@ -428,8 +486,7 @@ function renderizar() {
 
     var cmain = el('div', 'cmain');
     var autoInfo = classificarRemedio(m.nome);
-    var uNorm = norm(m.unidade_saude);
-    var tipoDetectado = uNorm.indexOf('generico') !== -1 ? 'Genérico' : (uNorm.indexOf('similar') !== -1 ? 'Similar' : (uNorm.indexOf('original') !== -1 ? 'Original' : (autoInfo ? autoInfo.tipo : 'Original')));
+    var tipoDetectado = tipoDe(m);
     var sigla = tipoDetectado === 'Genérico' ? 'G' : (tipoDetectado === 'Similar' ? 'S' : 'Rx');
 
     cmain.appendChild(el('div', 'rx', sigla));
@@ -442,7 +499,7 @@ function renderizar() {
     var ci = el('div', 'cinfo');
     var subst = m.principio_ativo || (autoInfo ? autoInfo.principio : m.nome);
     ci.appendChild(el('div', '', 'Substância: ' + subst));
-    ci.appendChild(el('div', '', 'Tipo: ' + tipoDetectado + ' • ' + m.unidade_saude.split('•')[0].trim()));
+    ci.appendChild(el('div', '', 'Lista: ' + tipoDetectado + ' • ' + (m.unidade_saude || 'FarmaGerci Matriz').split('•')[0].trim()));
     card.appendChild(ci);
 
     var sr = el('div', 'strow');
@@ -527,15 +584,12 @@ async function salvarFormulario(e) {
   var id = document.getElementById('edit-id').value;
   var nomeLimpo = document.getElementById('nome').value.trim();
   var doseLimpa = document.getElementById('dosagem').value.trim();
-  if (doseLimpa && nomeLimpo.toLowerCase().endsWith(doseLimpa.toLowerCase())) {
-    nomeLimpo = nomeLimpo.slice(0, -doseLimpa.length).trim();
-  }
-  nomeLimpo = nomeLimpo.charAt(0).toUpperCase() + nomeLimpo.slice(1);
-
   var auto = classificarRemedio(nomeLimpo);
   var subst = document.getElementById('principio').value.trim() || (auto ? auto.principio : nomeLimpo);
   var tipo = document.getElementById('tipo_med').value.trim() || (auto ? auto.tipo : 'Similar');
   var uni = document.getElementById('unidade').value.trim() || 'FarmaGerci Matriz';
+
+  nomeLimpo = nomeLimpo.charAt(0).toUpperCase() + nomeLimpo.slice(1);
 
   var dados = {
     nome: nomeLimpo,
@@ -557,14 +611,5 @@ async function salvarFormulario(e) {
 }
 
 function copiarPedido() {
-  var faltas = lista.filter(function(m) { return statusDe(m) !== 'NORMAL'; });
-  if (!faltas.length) { avisar('Nenhum item em falta!'); return; }
-  var txt = '*PEDIDO FARMAGERCI*\n' + faltas.map(function(m) {
-    return '- ' + m.nome + (m.dosagem ? ' ' + m.dosagem : '') + ' (' + (m.principio_ativo || m.nome) + ') [' + m.unidade_saude + ']';
-  }).join('\n');
-  navigator.clipboard.writeText(txt);
-  avisar('Copiado para o WhatsApp!');
-}
-
-montarTela();
-carregar();
+  var itens = obterFiltrados();
+  if (!itens.length) { avisar('Nenhum item nesta lista para copiar!'); return; }
