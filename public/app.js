@@ -1,6 +1,96 @@
 var lista = new Array();
 var filtroAtivo = 'TODOS';
 
+var ORIGINAIS = {
+  donaren: 'Cloridrato de Trazodona', novalgina: 'Dipirona Monoidratada',
+  tylenol: 'Paracetamol', advil: 'Ibuprofeno', amoxil: 'Amoxicilina Tri-hidratada',
+  clavulin: 'Amoxicilina + Clavulanato', astro: 'Azitromicina Di-hidratada',
+  keflex: 'Cefalexina', cipro: 'Cloridrato de Ciprofloxacino',
+  flagyl: 'Metronidazol', cozaar: 'Losartana Potássica',
+  renitec: 'Maleato de Enalapril', capoten: 'Captopril',
+  lasix: 'Furosemida', selozok: 'Succinato de Metoprolol',
+  concor: 'Hemifumarato de Bisoprolol', norvasc: 'Besilato de Anlodipino',
+  zocor: 'Sinvastatina', lipitor: 'Atorvastatina Cálcica',
+  crestor: 'Rosuvastatina Cálcica', glifage: 'Cloridrato de Metformina',
+  daonil: 'Glibenclamida', amaryl: 'Glimepirida', galvus: 'Vildagliptina',
+  januvia: 'Fosfato de Sitagliptina', forxiga: 'Dapagliflozina',
+  jardiance: 'Empagliflozina', ozempic: 'Semaglutida',
+  losec: 'Omeprazol', pantozol: 'Pantoprazol Sódico',
+  nexium: 'Esomeprazol Magnésio', claritin: 'Loratadina',
+  desalex: 'Desloratadina', allegra: 'Cloridrato de Fexofenadina',
+  polaramine: 'Maleato de Dexclorfeniramina', meticorten: 'Prednisona',
+  prelone: 'Prednisolona', decadron: 'Dexametasona',
+  rivotril: 'Clonazepam', valium: 'Diazepam', frontal: 'Alprazolam',
+  lexotan: 'Bromazepam', lorax: 'Lorazepam', stilnox: 'Zolpidem',
+  zoloft: 'Cloridrato de Sertralina', prozac: 'Cloridrato de Fluoxetina',
+  lexapro: 'Oxalato de Escitalopram', cipramil: 'Bromidrato de Citalopram',
+  pondera: 'Cloridrato de Paroxetina', tryptanol: 'Cloridrato de Amitriptilina',
+  efexor: 'Cloridrato de Venlafaxina', pristiq: 'Desvenlafaxina',
+  cymbalta: 'Cloridrato de Duloxetina', wellbutrin: 'Cloridrato de Bupropiona',
+  seroquel: 'Hemifumarato de Quetiapina', risperdal: 'Risperidona',
+  zyprexa: 'Olanzapina', haldol: 'Haloperidol', tegretol: 'Carbamazepina',
+  gardenal: 'Fenobarbital', depakene: 'Valproato de Sódio',
+  puran: 'Levotiroxina Sódica', euthyrox: 'Levotiroxina Sódica',
+  aerolin: 'Sulfato de Salbutamol', buscopan: 'Escopolamina',
+  dramin: 'Dimenidrinato', plasil: 'Metoclopramida',
+  vonau: 'Ondansetrona', cataflam: 'Diclofenaco Potássico',
+  voltaren: 'Diclofenaco Sódico', celebra: 'Celecoxibe',
+  arcoxia: 'Etoricoxibe', luftal: 'Simeticona', imosec: 'Loperamida',
+  viagra: 'Citrato de Sildenafila', cialis: 'Tadalafila',
+  xarelto: 'Rivaroxabana', eliquis: 'Apixabana', plavix: 'Clopidogrel'
+};
+
+var SIMILARES = {
+  aradois: 'Losartana Potássica', anador: 'Dipirona Monoidratada',
+  alivium: 'Ibuprofeno', busprofem: 'Ibuprofeno', nisulid: 'Nimesulida',
+  scaflam: 'Nimesulida', neosaldina: 'Dipirona + Isometepteno + Cafeína',
+  dorflex: 'Dipirona + Orfenadrina + Cafeína', torsilax: 'Cafeína + Carisoprodol + Diclofenaco + Paracetamol',
+  tandrilax: 'Cafeína + Carisoprodol + Diclofenaco + Paracetamol',
+  miosan: 'Ciclobenzaprina', cimegripe: 'Paracetamol + Clorfeniramina + Fenilefrina',
+  benegrip: 'Dipirona + Clorfeniramina + Cafeína', resfenol: 'Paracetamol + Clorfeniramina + Fenilefrina',
+  histamin: 'Maleato de Dexclorfeniramina', hixizine: 'Cloridrato de Hidroxizina',
+  daforin: 'Cloridrato de Fluoxetina', exodus: 'Oxalato de Escitalopram',
+  zetron: 'Cloridrato de Bupropiona', bup: 'Cloridrato de Bupropiona',
+  velija: 'Cloridrato de Duloxetina', patz: 'Hemitartarato de Zolpidem',
+  levoid: 'Levotiroxina Sódica', busonid: 'Budesonida',
+  fluimucil: 'Acetilcisteína', bisolvon: 'Cloridrato de Bromexina',
+  nebacetin: 'Sulfato de Neomicina + Bacitracina', bepantol: 'Dexpantenol',
+  enterogermina: 'Bacillus clausii', repoflor: 'Saccharomyces boulardii',
+  addera: 'Colecalciferol (Vitamina D3)', noripurum: 'Ferripolimaltose',
+  endofolin: 'Ácido Fólico', somalgin: 'Ácido Acetilsalicílico'
+};
+
+var GENERICOS = [
+  'trazodona', 'dipirona', 'paracetamol', 'ibuprofeno', 'amoxicilina',
+  'azitromicina', 'cefalexina', 'ciprofloxacino', 'levofloxacino', 'metronidazol',
+  'sulfametoxazol', 'fluconazol', 'itraconazol', 'cetoconazol', 'aciclovir',
+  'ivermectina', 'albendazol', 'losartana', 'enalapril', 'captopril',
+  'ramipril', 'valsartana', 'olmesartana', 'telmisartana', 'hidroclorotiazida',
+  'clortalidona', 'indapamida', 'furosemida', 'espironolactona', 'atenolol',
+  'propranolol', 'metoprolol', 'carvedilol', 'bisoprolol', 'nebivolol',
+  'anlodipino', 'sinvastatina', 'atorvastatina', 'rosuvastatina', 'ezetimiba',
+  'metformina', 'glibenclamida', 'glimepirida', 'gliclazida', 'dapagliflozina',
+  'empagliflozina', 'sitagliptina', 'vildagliptina', 'insulina', 'omeprazol',
+  'pantoprazol', 'esomeprazol', 'lansoprazol', 'domperidona', 'bromoprida',
+  'metoclopramida', 'ondansetrona', 'simeticona', 'loperamida', 'loratadina',
+  'desloratadina', 'fexofenadina', 'cetirizina', 'levocetirizina', 'dexclorfeniramina',
+  'hidroxizina', 'prometazina', 'prednisona', 'prednisolona', 'dexametasona',
+  'betametasona', 'budesonida', 'clonazepam', 'diazepam', 'alprazolam',
+  'bromazepam', 'lorazepam', 'zolpidem', 'sertralina', 'fluoxetina',
+  'escitalopram', 'citalopram', 'paroxetina', 'amitriptilina', 'nortriptilina',
+  'venlafaxina', 'desvenlafaxina', 'duloxetina', 'bupropiona', 'mirtazapina',
+  'quetiapina', 'risperidona', 'olanzapina', 'aripiprazol', 'haloperidol',
+  'litio', 'carbamazepina', 'oxcarbazepina', 'fenobarbital', 'valproato',
+  'lamotrigina', 'topiramato', 'gabapentina', 'pregabalina', 'levotiroxina',
+  'salbutamol', 'montelucaste', 'acetilcisteina', 'ambroxol', 'bromexina',
+  'escopolamina', 'dimenidrinato', 'nimesulida', 'diclofenaco', 'meloxicam',
+  'piroxicam', 'cetoprofeno', 'naproxeno', 'celecoxibe', 'etoricoxibe',
+  'tramadol', 'codeina', 'ciclobenzaprina', 'alopurinol', 'colchicina',
+  'sildenafila', 'tadalafila', 'finasterida', 'tansulosina', 'doxazosina',
+  'varfarina', 'rivaroxabana', 'apixabana', 'clopidogrel', 'acido folico',
+  'sulfato ferroso', 'colecalciferol', 'cianocobalamina'
+];
+
 function el(tag, cls, txt) {
   var e = document.createElement(tag);
   if (cls) e.className = cls;
@@ -8,6 +98,28 @@ function el(tag, cls, txt) {
   return e;
 }
 
+function norm(t) {
+  return (t || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').trim();
+}
+
+function classificarRemedio(texto) {
+  var limpo = norm(texto);
+  if (!limpo) return null;
+  for (var o in ORIGINAIS) {
+    if (limpo.indexOf(o) !== -1) return { principio: ORIGINAIS[o], tipo: 'Original' };
+  }
+  for (var s in SIMILARES) {
+    if (limpo.indexOf(s) !== -1) return { principio: SIMILARES[s], tipo: 'Similar' };
+  }
+  for (var i = 0; i < GENERICOS.length; i++) {
+    var g = GENERICOS[i];
+    if (limpo.indexOf(g) !== -1) {
+      return { principio: g.charAt(0).toUpperCase() + g.slice(1), tipo: 'Genérico' };
+    }
+  }
+  var cap = texto.trim();
+  return { principio: cap.charAt(0).toUpperCase() + cap.slice(1), tipo: 'Similar' };
+}
 function montarTela() {
   var root = document.getElementById('app');
   root.innerHTML = '';
@@ -36,7 +148,8 @@ function montarTela() {
   var search = el('div', 'search');
   var busca = el('input');
   busca.id = 'busca';
-  busca.placeholder = 'Buscar medicamento, substância ou tipo...';
+  busca.autocomplete = 'off';
+  busca.placeholder = 'Buscar medicamento, substância, genérico ou similar...';
   busca.oninput = renderizar;
   search.appendChild(busca);
   hdrIn.appendChild(search);
@@ -126,15 +239,16 @@ function montarTela() {
 
   var iNome = el('input');
   iNome.id = 'nome';
+  iNome.autocomplete = 'off';
   iNome.required = true;
-  iNome.placeholder = 'Ex: Trazodona 50mg ou Dipirona';
+  iNome.placeholder = 'Ex: Trazodona 50mg, Donaren ou Aradois';
   iNome.oninput = reconhecer;
   fg1.appendChild(iNome);
   form.appendChild(fg1);
 
   var row1 = el('div', 'frow');
   var fg2 = el('div', 'fg');
-  fg2.appendChild(el('label', '', 'Princípio Ativo (Auto)'));
+  fg2.appendChild(el('label', '', 'Substância / Princípio Ativo'));
   var iPrinc = el('input');
   iPrinc.id = 'principio';
   fg2.appendChild(iPrinc);
@@ -151,10 +265,9 @@ function montarTela() {
 
   var rowTipo = el('div', 'frow');
   var fgTipo = el('div', 'fg');
-  fgTipo.appendChild(el('label', '', 'Categoria (Auto)'));
+  fgTipo.appendChild(el('label', '', 'Tipo (Genérico / Similar / Original)'));
   var iTipo = el('input');
   iTipo.id = 'tipo_med';
-  iTipo.placeholder = 'Genérico, Similar ou Original';
   fgTipo.appendChild(iTipo);
 
   var fg4 = el('div', 'fg');
@@ -203,37 +316,32 @@ function montarTela() {
   mBg.appendChild(modal);
   root.appendChild(mBg);
 }
-function norm(t) {
-  return (t || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').trim();
-}
 
 function reconhecer() {
   var txt = document.getElementById('nome').value;
   var partes = txt.split(' ');
   var semDose = txt;
+  var achouDose = false;
 
   for (var i = 0; i < partes.length; i++) {
     var p = partes[i].toLowerCase();
     if (p.indexOf('mg') > 0 || p.indexOf('ml') > 0 || p.indexOf('mcg') > 0 || p.indexOf('ui') > 0 || (p.length > 1 && p.endsWith('g') && !isNaN(p))) {
       document.getElementById('dosagem').value = partes[i];
       semDose = txt.replace(partes[i], '').trim();
+      achouDose = true;
     }
   }
+  if (!achouDose) document.getElementById('dosagem').value = '';
 
-  if (!semDose.trim()) {
+  var res = classificarRemedio(semDose);
+  if (res) {
+    document.getElementById('principio').value = res.principio;
+    document.getElementById('tipo_med').value = res.tipo;
+    document.getElementById('badge-tipo').textContent = '✓ ' + res.tipo;
+  } else {
     document.getElementById('principio').value = '';
     document.getElementById('tipo_med').value = '';
     document.getElementById('badge-tipo').textContent = '';
-    return;
-  }
-
-  if (typeof identificarFarmaco === 'function') {
-    var res = identificarFarmaco(semDose);
-    if (res) {
-      document.getElementById('principio').value = res.principio;
-      document.getElementById('tipo_med').value = res.tipo;
-      document.getElementById('badge-tipo').textContent = '✓ ' + res.tipo;
-    }
   }
 }
 
@@ -290,8 +398,8 @@ function renderizar() {
 
   if (filtrados.length === 0) {
     var emp = el('div', 'empty');
-    emp.appendChild(el('h3', '', 'Nenhum medicamento cadastrado'));
-    var bAdd = el('button', 'btn btn-p', '+ Registrar Primeiro Item');
+    emp.appendChild(el('h3', '', 'Nenhum medicamento encontrado'));
+    var bAdd = el('button', 'btn btn-p', '+ Registrar Item');
     bAdd.style.marginTop = '12px';
     bAdd.onclick = abrirModalNovo;
     emp.appendChild(bAdd);
@@ -321,136 +429,5 @@ function renderizar() {
     card.appendChild(ctop);
 
     var cmain = el('div', 'cmain');
+    var autoInfo = classificarRemedio(m.nome);
     var uNorm = norm(m.unidade_saude);
-    var sigla = uNorm.indexOf('generico') !== -1 ? 'G' : (uNorm.indexOf('similar') !== -1 ? 'S' : 'Rx');
-    cmain.appendChild(el('div', 'rx', sigla));
-    var tb = el('div');
-    tb.appendChild(el('div', 'ctitle', m.nome));
-    if (m.dosagem) tb.appendChild(el('span', 'cdose', m.dosagem));
-    cmain.appendChild(tb);
-    card.appendChild(cmain);
-
-    var ci = el('div', 'cinfo');
-    ci.appendChild(el('div', '', 'Substância: ' + (m.principio_ativo || 'Não informada')));
-    ci.appendChild(el('div', '', 'Filial / Tipo: ' + m.unidade_saude));
-    card.appendChild(ci);
-
-    var sr = el('div', 'strow');
-    sr.appendChild(el('span', '', 'Estoque: ' + atual + ' un.'));
-    sr.appendChild(el('span', '', 'Mín: ' + min));
-    card.appendChild(sr);
-
-    var pbg = el('div', 'pbg');
-    var pf = el('div', 'pfill');
-    pf.style.width = pct + '%';
-    pf.style.background = cor;
-    pbg.appendChild(pf);
-    card.appendChild(pbg);
-
-    var qb = el('div', 'qbtns');
-    var q1 = el('button', 'qbtn', '-1');
-    q1.onclick = function() { mover(m.id, -1); };
-    var q2 = el('button', 'qbtn', '+1');
-    q2.onclick = function() { mover(m.id, 1); };
-    var q3 = el('button', 'qbtn qplus', '+10 un.');
-    q3.onclick = function() { mover(m.id, 10); };
-    qb.appendChild(q1);
-    qb.appendChild(q2);
-    qb.appendChild(q3);
-    card.appendChild(qb);
-
-    box.appendChild(card);
-  });
-}
-
-async function mover(id, qtd) {
-  await fetch('/api/medicamentos/' + id + '/estoque', {
-    method: 'PATCH',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ quantidade: qtd })
-  });
-  avisar('Estoque atualizado!');
-  carregar();
-}
-
-async function remover(id) {
-  if (!confirm('Remover item?')) return;
-  await fetch('/api/medicamentos/' + id, { method: 'DELETE' });
-  avisar('Removido.');
-  carregar();
-}
-
-function abrirModalNovo() {
-  document.getElementById('edit-id').value = '';
-  document.getElementById('modal-titulo').textContent = 'Registrar Medicamento / Falta';
-  document.getElementById('badge-tipo').textContent = '';
-  document.getElementById('form').reset();
-  document.getElementById('unidade').value = 'FarmaGerci Matriz';
-  document.getElementById('atual').value = 0;
-  document.getElementById('minimo').value = 10;
-  document.getElementById('modal').classList.add('open');
-}
-
-function editar(id) {
-  var m = lista.find(function(x) { return x.id === id; });
-  if (!m) return;
-  document.getElementById('edit-id').value = m.id;
-  document.getElementById('modal-titulo').textContent = 'Editar Medicamento';
-  document.getElementById('nome').value = m.nome;
-  document.getElementById('principio').value = m.principio_ativo || '';
-  document.getElementById('dosagem').value = m.dosagem || '';
-  document.getElementById('unidade').value = m.unidade_saude || 'FarmaGerci Matriz';
-  document.getElementById('atual').value = m.estoque_atual;
-  document.getElementById('minimo').value = m.estoque_minimo;
-  document.getElementById('modal').classList.add('open');
-}
-
-function fecharModal() {
-  document.getElementById('modal').classList.remove('open');
-}
-
-async function salvarFormulario(e) {
-  e.preventDefault();
-  var id = document.getElementById('edit-id').value;
-  var nomeLimpo = document.getElementById('nome').value.trim();
-  var doseLimpa = document.getElementById('dosagem').value.trim();
-  if (doseLimpa && nomeLimpo.toLowerCase().endsWith(doseLimpa.toLowerCase())) {
-    nomeLimpo = nomeLimpo.slice(0, -doseLimpa.length).trim();
-  }
-  nomeLimpo = nomeLimpo.charAt(0).toUpperCase() + nomeLimpo.slice(1);
-
-  var tipo = document.getElementById('tipo_med').value.trim();
-  var uni = document.getElementById('unidade').value.trim();
-  var uniFinal = tipo ? (uni + ' • ' + tipo) : uni;
-
-  var dados = {
-    nome: nomeLimpo,
-    principio_ativo: document.getElementById('principio').value.trim(),
-    dosagem: doseLimpa,
-    unidade_saude: uniFinal,
-    estoque_atual: Number(document.getElementById('atual').value),
-    estoque_minimo: Number(document.getElementById('minimo').value)
-  };
-  if (id) await fetch('/api/medicamentos/' + id, { method: 'DELETE' });
-  await fetch('/api/medicamentos', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(dados)
-  });
-  fecharModal();
-  avisar('Salvo na FarmaGerci!');
-  carregar();
-}
-
-function copiarPedido() {
-  var faltas = lista.filter(function(m) { return statusDe(m) !== 'NORMAL'; });
-  if (!faltas.length) { avisar('Nenhum item em falta!'); return; }
-  var txt = '*PEDIDO FARMAGERCI*\n' + faltas.map(function(m) {
-    return '- ' + m.nome + (m.dosagem ? ' ' + m.dosagem : '') + ' (' + (m.principio_ativo || '') + ') [' + m.unidade_saude + ']';
-  }).join('\n');
-  navigator.clipboard.writeText(txt);
-  avisar('Copiado para o WhatsApp!');
-}
-
-montarTela();
-carregar();
