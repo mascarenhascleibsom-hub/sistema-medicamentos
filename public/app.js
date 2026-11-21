@@ -1,20 +1,6 @@
 var lista = new Array();
 var filtroAtivo = 'TODOS';
 
-var FARMACOS = {
-  trazodona: 'Cloridrato de Trazodona', donaren: 'Cloridrato de Trazodona',
-  dipirona: 'Dipirona Monoidratada', novalgina: 'Dipirona Monoidratada',
-  paracetamol: 'Paracetamol', ibuprofeno: 'Ibuprofeno',
-  amoxicilina: 'Amoxicilina Tri-hidratada', azitromicina: 'Azitromicina',
-  losartana: 'Losartana Potássica', enalapril: 'Maleato de Enalapril',
-  metformina: 'Cloridrato de Metformina', omeprazol: 'Omeprazol',
-  clonazepam: 'Clonazepam', rivotril: 'Clonazepam',
-  sertralina: 'Cloridrato de Sertralina', fluoxetina: 'Cloridrato de Fluoxetina',
-  escitalopram: 'Oxalato de Escitalopram', quetiapina: 'Hemifumarato de Quetiapina',
-  levotiroxina: 'Levotiroxina Sódica', nimesulida: 'Nimesulida',
-  diclofenaco: 'Diclofenaco Sódico', dorflex: 'Dipirona + Orfenadrina + Cafeína'
-};
-
 function el(tag, cls, txt) {
   var e = document.createElement(tag);
   if (cls) e.className = cls;
@@ -43,14 +29,14 @@ function montarTela() {
   logo.appendChild(el('div', 'logo-box', '+'));
   var ltxt = el('div');
   ltxt.appendChild(el('h1', '', 'FarmaGerci'));
-  ltxt.appendChild(el('p', '', 'Gestão de Falta de Medicamentos'));
+  ltxt.appendChild(el('p', '', 'Gestão Inteligente de Falta de Medicamentos'));
   logo.appendChild(ltxt);
   hdrIn.appendChild(logo);
 
   var search = el('div', 'search');
   var busca = el('input');
   busca.id = 'busca';
-  busca.placeholder = 'Buscar medicamento ou princípio ativo...';
+  busca.placeholder = 'Buscar medicamento, substância ou tipo...';
   busca.oninput = renderizar;
   search.appendChild(busca);
   hdrIn.appendChild(search);
@@ -130,10 +116,18 @@ function montarTela() {
   form.appendChild(hid);
 
   var fg1 = el('div', 'fg');
-  fg1.appendChild(el('label', '', 'Nome + Dosagem (Ex: Trazodona 50mg) *'));
+  var lb1 = el('label');
+  lb1.appendChild(el('span', '', 'Nome do Medicamento (dosagem opcional) *'));
+  var bTipo = el('span', '', '');
+  bTipo.id = 'badge-tipo';
+  bTipo.style.color = '#6d28d9';
+  lb1.appendChild(bTipo);
+  fg1.appendChild(lb1);
+
   var iNome = el('input');
   iNome.id = 'nome';
   iNome.required = true;
+  iNome.placeholder = 'Ex: Trazodona 50mg ou Dipirona';
   iNome.oninput = reconhecer;
   fg1.appendChild(iNome);
   form.appendChild(fg1);
@@ -146,13 +140,22 @@ function montarTela() {
   fg2.appendChild(iPrinc);
 
   var fg3 = el('div', 'fg');
-  fg3.appendChild(el('label', '', 'Dosagem (Auto)'));
+  fg3.appendChild(el('label', '', 'Dosagem (Opcional)'));
   var iDose = el('input');
   iDose.id = 'dosagem';
+  iDose.placeholder = 'Ex: 50mg';
   fg3.appendChild(iDose);
   row1.appendChild(fg2);
   row1.appendChild(fg3);
   form.appendChild(row1);
+
+  var rowTipo = el('div', 'frow');
+  var fgTipo = el('div', 'fg');
+  fgTipo.appendChild(el('label', '', 'Categoria (Auto)'));
+  var iTipo = el('input');
+  iTipo.id = 'tipo_med';
+  iTipo.placeholder = 'Genérico, Similar ou Original';
+  fgTipo.appendChild(iTipo);
 
   var fg4 = el('div', 'fg');
   fg4.appendChild(el('label', '', 'Unidade / Filial'));
@@ -160,7 +163,9 @@ function montarTela() {
   iUni.id = 'unidade';
   iUni.value = 'FarmaGerci Matriz';
   fg4.appendChild(iUni);
-  form.appendChild(fg4);
+  rowTipo.appendChild(fgTipo);
+  rowTipo.appendChild(fg4);
+  form.appendChild(rowTipo);
 
   var row2 = el('div', 'frow');
   var fg5 = el('div', 'fg');
@@ -205,17 +210,29 @@ function norm(t) {
 function reconhecer() {
   var txt = document.getElementById('nome').value;
   var partes = txt.split(' ');
+  var semDose = txt;
+
   for (var i = 0; i < partes.length; i++) {
     var p = partes[i].toLowerCase();
-    if (p.indexOf('mg') > 0 || p.indexOf('ml') > 0 || p.indexOf('mcg') > 0 || (p.length > 1 && p.endsWith('g') && !isNaN(p[0]))) {
+    if (p.indexOf('mg') > 0 || p.indexOf('ml') > 0 || p.indexOf('mcg') > 0 || p.indexOf('ui') > 0 || (p.length > 1 && p.endsWith('g') && !isNaN(p))) {
       document.getElementById('dosagem').value = partes[i];
+      semDose = txt.replace(partes[i], '').trim();
     }
   }
-  var limpo = norm(txt);
-  for (var k in FARMACOS) {
-    if (limpo.indexOf(k) !== -1) {
-      document.getElementById('principio').value = FARMACOS[k];
-      return;
+
+  if (!semDose.trim()) {
+    document.getElementById('principio').value = '';
+    document.getElementById('tipo_med').value = '';
+    document.getElementById('badge-tipo').textContent = '';
+    return;
+  }
+
+  if (typeof identificarFarmaco === 'function') {
+    var res = identificarFarmaco(semDose);
+    if (res) {
+      document.getElementById('principio').value = res.principio;
+      document.getElementById('tipo_med').value = res.tipo;
+      document.getElementById('badge-tipo').textContent = '✓ ' + res.tipo;
     }
   }
 }
@@ -264,7 +281,7 @@ function filtrar(st) {
 function renderizar() {
   var q = norm(document.getElementById('busca').value);
   var filtrados = lista.filter(function(m) {
-    var t = norm(m.nome).indexOf(q) !== -1 || norm(m.principio_ativo).indexOf(q) !== -1;
+    var t = norm(m.nome).indexOf(q) !== -1 || norm(m.principio_ativo).indexOf(q) !== -1 || norm(m.unidade_saude).indexOf(q) !== -1;
     return t && (filtroAtivo === 'TODOS' || statusDe(m) === filtroAtivo);
   });
 
@@ -304,16 +321,18 @@ function renderizar() {
     card.appendChild(ctop);
 
     var cmain = el('div', 'cmain');
-    cmain.appendChild(el('div', 'rx', 'Rx'));
+    var uNorm = norm(m.unidade_saude);
+    var sigla = uNorm.indexOf('generico') !== -1 ? 'G' : (uNorm.indexOf('similar') !== -1 ? 'S' : 'Rx');
+    cmain.appendChild(el('div', 'rx', sigla));
     var tb = el('div');
     tb.appendChild(el('div', 'ctitle', m.nome));
-    tb.appendChild(el('span', 'cdose', m.dosagem || 'Sem dosagem'));
+    if (m.dosagem) tb.appendChild(el('span', 'cdose', m.dosagem));
     cmain.appendChild(tb);
     card.appendChild(cmain);
 
     var ci = el('div', 'cinfo');
     ci.appendChild(el('div', '', 'Substância: ' + (m.principio_ativo || 'Não informada')));
-    ci.appendChild(el('div', '', 'Unidade: ' + m.unidade_saude));
+    ci.appendChild(el('div', '', 'Filial / Tipo: ' + m.unidade_saude));
     card.appendChild(ci);
 
     var sr = el('div', 'strow');
@@ -364,6 +383,7 @@ async function remover(id) {
 function abrirModalNovo() {
   document.getElementById('edit-id').value = '';
   document.getElementById('modal-titulo').textContent = 'Registrar Medicamento / Falta';
+  document.getElementById('badge-tipo').textContent = '';
   document.getElementById('form').reset();
   document.getElementById('unidade').value = 'FarmaGerci Matriz';
   document.getElementById('atual').value = 0;
@@ -392,11 +412,22 @@ function fecharModal() {
 async function salvarFormulario(e) {
   e.preventDefault();
   var id = document.getElementById('edit-id').value;
+  var nomeLimpo = document.getElementById('nome').value.trim();
+  var doseLimpa = document.getElementById('dosagem').value.trim();
+  if (doseLimpa && nomeLimpo.toLowerCase().endsWith(doseLimpa.toLowerCase())) {
+    nomeLimpo = nomeLimpo.slice(0, -doseLimpa.length).trim();
+  }
+  nomeLimpo = nomeLimpo.charAt(0).toUpperCase() + nomeLimpo.slice(1);
+
+  var tipo = document.getElementById('tipo_med').value.trim();
+  var uni = document.getElementById('unidade').value.trim();
+  var uniFinal = tipo ? (uni + ' • ' + tipo) : uni;
+
   var dados = {
-    nome: document.getElementById('nome').value.trim(),
+    nome: nomeLimpo,
     principio_ativo: document.getElementById('principio').value.trim(),
-    dosagem: document.getElementById('dosagem').value.trim(),
-    unidade_saude: document.getElementById('unidade').value.trim(),
+    dosagem: doseLimpa,
+    unidade_saude: uniFinal,
     estoque_atual: Number(document.getElementById('atual').value),
     estoque_minimo: Number(document.getElementById('minimo').value)
   };
@@ -415,7 +446,7 @@ function copiarPedido() {
   var faltas = lista.filter(function(m) { return statusDe(m) !== 'NORMAL'; });
   if (!faltas.length) { avisar('Nenhum item em falta!'); return; }
   var txt = '*PEDIDO FARMAGERCI*\n' + faltas.map(function(m) {
-    return '- ' + m.nome + ' ' + (m.dosagem || '') + ' (' + (m.principio_ativo || '') + ')';
+    return '- ' + m.nome + (m.dosagem ? ' ' + m.dosagem : '') + ' (' + (m.principio_ativo || '') + ') [' + m.unidade_saude + ']';
   }).join('\n');
   navigator.clipboard.writeText(txt);
   avisar('Copiado para o WhatsApp!');
