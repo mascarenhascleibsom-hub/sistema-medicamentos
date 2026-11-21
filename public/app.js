@@ -161,7 +161,6 @@ function montarTela() {
   root.appendChild(hdr);
 
   var main = el('main', 'wrap');
-
   var metrics = el('section', 'metrics');
   [
     { k: 'TODOS', t: 'Total Cadastrado', id: 'm-total', c: '#1e1b4b' },
@@ -316,7 +315,6 @@ function montarTela() {
   mBg.appendChild(modal);
   root.appendChild(mBg);
 }
-
 function reconhecer() {
   var txt = document.getElementById('nome').value;
   var partes = txt.split(' ');
@@ -325,7 +323,7 @@ function reconhecer() {
 
   for (var i = 0; i < partes.length; i++) {
     var p = partes[i].toLowerCase();
-    if (p.indexOf('mg') > 0 || p.indexOf('ml') > 0 || p.indexOf('mcg') > 0 || p.indexOf('ui') > 0 || (p.length > 1 && p.endsWith('g') && !isNaN(p))) {
+    if (p.indexOf('mg') > 0 || p.indexOf('ml') > 0 || p.indexOf('mcg') > 0 || p.indexOf('ui') > 0 || (p.length > 1 && p.endsWith('g') && !isNaN(p[0]))) {
       document.getElementById('dosagem').value = partes[i];
       semDose = txt.replace(partes[i], '').trim();
       achouDose = true;
@@ -431,3 +429,142 @@ function renderizar() {
     var cmain = el('div', 'cmain');
     var autoInfo = classificarRemedio(m.nome);
     var uNorm = norm(m.unidade_saude);
+    var tipoDetectado = uNorm.indexOf('generico') !== -1 ? 'Genérico' : (uNorm.indexOf('similar') !== -1 ? 'Similar' : (uNorm.indexOf('original') !== -1 ? 'Original' : (autoInfo ? autoInfo.tipo : 'Original')));
+    var sigla = tipoDetectado === 'Genérico' ? 'G' : (tipoDetectado === 'Similar' ? 'S' : 'Rx');
+
+    cmain.appendChild(el('div', 'rx', sigla));
+    var tb = el('div');
+    tb.appendChild(el('div', 'ctitle', m.nome));
+    if (m.dosagem) tb.appendChild(el('span', 'cdose', m.dosagem));
+    cmain.appendChild(tb);
+    card.appendChild(cmain);
+
+    var ci = el('div', 'cinfo');
+    var subst = m.principio_ativo || (autoInfo ? autoInfo.principio : m.nome);
+    ci.appendChild(el('div', '', 'Substância: ' + subst));
+    ci.appendChild(el('div', '', 'Tipo: ' + tipoDetectado + ' • ' + m.unidade_saude.split('•')[0].trim()));
+    card.appendChild(ci);
+
+    var sr = el('div', 'strow');
+    sr.appendChild(el('span', '', 'Estoque: ' + atual + ' un.'));
+    sr.appendChild(el('span', '', 'Mín: ' + min));
+    card.appendChild(sr);
+
+    var pbg = el('div', 'pbg');
+    var pf = el('div', 'pfill');
+    pf.style.width = pct + '%';
+    pf.style.background = cor;
+    pbg.appendChild(pf);
+    card.appendChild(pbg);
+
+    var qb = el('div', 'qbtns');
+    var q1 = el('button', 'qbtn', '-1');
+    q1.onclick = function() { mover(m.id, -1); };
+    var q2 = el('button', 'qbtn', '+1');
+    q2.onclick = function() { mover(m.id, 1); };
+    var q3 = el('button', 'qbtn qplus', '+10 un.');
+    q3.onclick = function() { mover(m.id, 10); };
+    qb.appendChild(q1);
+    qb.appendChild(q2);
+    qb.appendChild(q3);
+    card.appendChild(qb);
+
+    box.appendChild(card);
+  });
+}
+
+async function mover(id, qtd) {
+  await fetch('/api/medicamentos/' + id + '/estoque', {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ quantidade: qtd })
+  });
+  avisar('Estoque atualizado!');
+  carregar();
+}
+
+async function remover(id) {
+  if (!confirm('Remover item?')) return;
+  await fetch('/api/medicamentos/' + id, { method: 'DELETE' });
+  avisar('Removido.');
+  carregar();
+}
+
+function abrirModalNovo() {
+  document.getElementById('edit-id').value = '';
+  document.getElementById('modal-titulo').textContent = 'Registrar Medicamento / Falta';
+  document.getElementById('badge-tipo').textContent = '';
+  document.getElementById('form').reset();
+  document.getElementById('unidade').value = 'FarmaGerci Matriz';
+  document.getElementById('atual').value = 0;
+  document.getElementById('minimo').value = 10;
+  document.getElementById('modal').classList.add('open');
+}
+
+function editar(id) {
+  var m = lista.find(function(x) { return x.id === id; });
+  if (!m) return;
+  document.getElementById('edit-id').value = m.id;
+  document.getElementById('modal-titulo').textContent = 'Editar Medicamento';
+  document.getElementById('nome').value = m.nome;
+  document.getElementById('principio').value = m.principio_ativo || '';
+  document.getElementById('dosagem').value = m.dosagem || '';
+  var partesUni = (m.unidade_saude || 'FarmaGerci Matriz').split('•');
+  document.getElementById('unidade').value = partesUni[0].trim();
+  document.getElementById('tipo_med').value = partesUni[1] ? partesUni[1].trim() : '';
+  document.getElementById('atual').value = m.estoque_atual;
+  document.getElementById('minimo').value = m.estoque_minimo;
+  reconhecer();
+  document.getElementById('modal').classList.add('open');
+}
+
+function fecharModal() {
+  document.getElementById('modal').classList.remove('open');
+}
+
+async function salvarFormulario(e) {
+  e.preventDefault();
+  var id = document.getElementById('edit-id').value;
+  var nomeLimpo = document.getElementById('nome').value.trim();
+  var doseLimpa = document.getElementById('dosagem').value.trim();
+  if (doseLimpa && nomeLimpo.toLowerCase().endsWith(doseLimpa.toLowerCase())) {
+    nomeLimpo = nomeLimpo.slice(0, -doseLimpa.length).trim();
+  }
+  nomeLimpo = nomeLimpo.charAt(0).toUpperCase() + nomeLimpo.slice(1);
+
+  var auto = classificarRemedio(nomeLimpo);
+  var subst = document.getElementById('principio').value.trim() || (auto ? auto.principio : nomeLimpo);
+  var tipo = document.getElementById('tipo_med').value.trim() || (auto ? auto.tipo : 'Similar');
+  var uni = document.getElementById('unidade').value.trim() || 'FarmaGerci Matriz';
+
+  var dados = {
+    nome: nomeLimpo,
+    principio_ativo: subst,
+    dosagem: doseLimpa,
+    unidade_saude: uni + ' • ' + tipo,
+    estoque_atual: Number(document.getElementById('atual').value),
+    estoque_minimo: Number(document.getElementById('minimo').value)
+  };
+  if (id) await fetch('/api/medicamentos/' + id, { method: 'DELETE' });
+  await fetch('/api/medicamentos', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(dados)
+  });
+  fecharModal();
+  avisar('Salvo na FarmaGerci!');
+  carregar();
+}
+
+function copiarPedido() {
+  var faltas = lista.filter(function(m) { return statusDe(m) !== 'NORMAL'; });
+  if (!faltas.length) { avisar('Nenhum item em falta!'); return; }
+  var txt = '*PEDIDO FARMAGERCI*\n' + faltas.map(function(m) {
+    return '- ' + m.nome + (m.dosagem ? ' ' + m.dosagem : '') + ' (' + (m.principio_ativo || m.nome) + ') [' + m.unidade_saude + ']';
+  }).join('\n');
+  navigator.clipboard.writeText(txt);
+  avisar('Copiado para o WhatsApp!');
+}
+
+montarTela();
+carregar();
