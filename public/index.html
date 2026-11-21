@@ -3,46 +3,93 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>FarmaControl — Monitoramento de Falta de Medicamentos</title>
+  <title>FarmaGerci — Gestão Inteligente de Estoque & Falta</title>
   <script src="https://tailwindcss.com"></script>
-  <link href="https://googleapis.com" rel="stylesheet">
+  <link rel="preconnect" href="https://googleapis.com">
+  <link rel="preconnect" href="https://gstatic.com" crossorigin>
+  <link href="https://googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: { sans: ['"Plus Jakarta Sans"', 'sans-serif'] },
+          colors: {
+            gerci: {
+              50: '#faf5ff',
+              100: '#f3e8ff',
+              200: '#e9d5ff',
+              500: '#a855f7',
+              600: '#7e22ce',
+              700: '#6b21a8',
+              800: '#581c87',
+              900: '#3b0764',
+            }
+          }
+        }
+      }
+    }
+  </script>
   <style>
-    body { font-family: 'Inter', sans-serif; }
+    .card-hover { transition: all 0.22s cubic-bezier(0.4, 0, 0.2, 1); }
+    .card-hover:hover { transform: translateY(-3px); box-shadow: 0 12px 24px -8px rgba(107, 33, 168, 0.18); }
   </style>
 </head>
-<body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col">
+<body class="bg-[#F6F5F9] text-slate-800 min-h-screen flex flex-col">
 
-  <!-- Toast de Notificação -->
-  <div id="toast" class="fixed bottom-5 right-5 z-50 hidden items-center gap-2 bg-slate-900 text-white px-4 py-3 rounded-xl shadow-lg text-sm font-medium">
-    <span id="toast-msg">Ação realizada!</span>
+  <!-- Toast Flutuante -->
+  <div id="toast" class="fixed bottom-6 right-6 z-50 hidden items-center gap-3 bg-gerci-900 text-white px-5 py-3.5 rounded-2xl shadow-2xl border border-gerci-600/40 text-sm font-semibold">
+    <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-ping"></span>
+    <span id="toast-msg">Atualizado!</span>
   </div>
 
-  <!-- Cabeçalho -->
-  <header class="bg-gradient-to-r from-blue-800 via-blue-700 to-indigo-800 text-white shadow-lg">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 py-5 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-      <div class="flex items-center gap-3">
-        <div class="bg-white/15 p-2.5 rounded-xl border border-white/20">
-          <svg class="w-7 h-7 text-white" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" />
-          </svg>
-        </div>
-        <div>
-          <div class="flex items-center gap-2">
-            <h1 class="text-xl sm:text-2xl font-bold tracking-tight">FarmaControl</h1>
-            <span id="status-conexao" class="text-[11px] font-semibold bg-emerald-500/20 text-emerald-200 border border-emerald-400/30 px-2 py-0.5 rounded-full">
-              ● Online
-            </span>
+  <!-- Topbar Estilo E-commerce Farmacêutico -->
+  <div class="bg-gerci-900 text-purple-200 text-xs py-1.5 px-4">
+    <div class="max-w-7xl mx-auto flex justify-between items-center">
+      <span>Portal Interno de Controle de Ruptura & Reposição • <strong>FarmaGerci</strong></span>
+      <span id="status-conexao" class="font-semibold text-emerald-300">● Conectado ao Banco</span>
+    </div>
+  </div>
+
+  <header class="bg-gradient-to-r from-gerci-800 via-gerci-700 to-purple-800 text-white sticky top-0 z-40 shadow-lg">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 py-4 flex flex-col lg:flex-row items-center justify-between gap-4">
+      
+      <!-- Logo FarmaGerci -->
+      <div class="flex items-center justify-between w-full lg:w-auto">
+        <div class="flex items-center gap-3">
+          <div class="w-11 h-11 rounded-2xl bg-white text-gerci-700 flex items-center justify-center shadow-md font-extrabold text-2xl">
+            +
           </div>
-          <p class="text-blue-100 text-xs sm:text-sm">Monitoramento Inteligente de Estoque e Falta de Medicamentos</p>
+          <div>
+            <h1 class="text-2xl font-extrabold tracking-tight leading-none">Farma<span class="text-purple-200">Gerci</span></h1>
+            <p class="text-[11px] text-purple-200 font-medium mt-0.5">Gestão de Falta & Estoque Crítico</p>
+          </div>
+        </div>
+
+        <button onclick="abrirModalNovo()" class="lg:hidden bg-white text-gerci-700 font-bold px-4 py-2 rounded-full text-xs shadow">
+          + Registrar Falta
+        </button>
+      </div>
+
+      <!-- Barra de Busca Central Estilo Drogasil -->
+      <div class="relative w-full lg:max-w-xl">
+        <input type="text" id="busca" oninput="renderizar()"
+          placeholder="O que você procura? Ex: Trazodona, Dipirona, Losartana..."
+          class="w-full bg-white text-slate-800 placeholder-slate-400 pl-5 pr-12 py-3 rounded-full text-sm font-medium shadow-inner focus:outline-none focus:ring-4 focus:ring-purple-400/40" />
+        <div class="absolute right-2 top-1.5 bg-gerci-600 text-white p-2 rounded-full">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+          </svg>
         </div>
       </div>
 
-      <div class="flex flex-wrap items-center gap-2.5 w-full md:w-auto">
-        <button onclick="exportarCSV()" class="flex-1 md:flex-none justify-center inline-flex items-center gap-2 bg-white/10 hover:bg-white/20 text-white border border-white/25 font-medium px-4 py-2.5 rounded-xl text-sm transition">
-          Exportar Planilha
+      <!-- Ações Rápidas -->
+      <div class="hidden lg:flex items-center gap-3">
+        <button onclick="copiarPedidoFalta()" class="inline-flex items-center gap-2 bg-gerci-900/50 hover:bg-gerci-900 text-white border border-purple-400/30 px-4 py-2.5 rounded-full text-xs font-semibold transition">
+          <svg class="w-4 h-4 text-purple-300" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
+          Copiar Lista de Compra
         </button>
-        <button onclick="abrirModalNovo()" class="flex-1 md:flex-none justify-center inline-flex items-center gap-2 bg-white text-blue-800 hover:bg-blue-50 font-semibold px-4 py-2.5 rounded-xl text-sm shadow-md transition">
-          + Novo Medicamento
+        <button onclick="abrirModalNovo()" class="inline-flex items-center gap-2 bg-white hover:bg-purple-50 text-gerci-800 font-bold px-5 py-2.5 rounded-full text-sm shadow-md transition">
+          <span class="text-lg leading-none">+</span> Cadastrar / Falta
         </button>
       </div>
     </div>
@@ -50,115 +97,71 @@
 
   <main class="max-w-7xl mx-auto px-4 sm:px-6 py-7 space-y-6 flex-1 w-full">
 
-    <!-- Alerta de Falta -->
-    <div id="banner-alerta" class="hidden bg-red-50 border border-red-200 rounded-2xl p-4 flex items-center justify-between gap-4">
-      <div class="flex items-center gap-3">
-        <span class="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-red-100 text-red-600 font-bold">!</span>
+    <!-- Faixa de Alerta Interativa -->
+    <div id="banner-alerta" class="hidden bg-gradient-to-r from-rose-600 to-red-600 text-white rounded-2xl p-4 sm:px-6 shadow-md flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+      <div class="flex items-center gap-3.5">
+        <div class="w-10 h-10 rounded-xl bg-white/20 flex items-center justify-center font-extrabold text-lg shrink-0">!</div>
         <div>
-          <h3 class="text-sm font-bold text-red-900">Atenção: Existem medicamentos zerados no estoque!</h3>
-          <p id="banner-texto" class="text-xs text-red-700">Verifique os itens em vermelho para reposição imediata.</p>
+          <p class="font-bold text-sm sm:text-base">Alerta de Ruptura na FarmaGerci</p>
+          <p id="banner-texto" class="text-xs text-rose-100">Existem medicamentos zerados aguardando reposição.</p>
         </div>
       </div>
-      <button onclick="filtrarPorCard('FALTA')" class="shrink-0 bg-red-600 hover:bg-red-700 text-white text-xs font-semibold px-3.5 py-2 rounded-lg transition">
-        Ver em falta
-      </button>
-    </div>
-
-    <!-- Cards de Resumo -->
-    <section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-      <div onclick="filtrarPorCard('TODOS')" class="cursor-pointer bg-white p-5 rounded-2xl shadow-sm border border-slate-200 hover:border-blue-400 transition">
-        <p class="text-xs font-semibold uppercase tracking-wider text-slate-400">Total Cadastrado</p>
-        <p id="card-total" class="text-3xl font-bold text-slate-800 mt-1">0</p>
-        <p class="text-xs text-slate-400 mt-2">Clique para listar todos</p>
-      </div>
-
-      <div onclick="filtrarPorCard('FALTA')" class="cursor-pointer bg-white p-5 rounded-2xl shadow-sm border-l-4 border-l-red-600 border border-slate-200 hover:border-red-400 transition">
-        <p class="text-xs font-semibold uppercase tracking-wider text-red-600">Em Falta (Zerado)</p>
-        <p id="card-falta" class="text-3xl font-bold text-red-600 mt-1">0</p>
-        <p class="text-xs text-slate-400 mt-2">Reposição urgente</p>
-      </div>
-
-      <div onclick="filtrarPorCard('CRITICO')" class="cursor-pointer bg-white p-5 rounded-2xl shadow-sm border-l-4 border-l-amber-500 border border-slate-200 hover:border-amber-400 transition">
-        <p class="text-xs font-semibold uppercase tracking-wider text-amber-600">Nível Crítico</p>
-        <p id="card-critico" class="text-3xl font-bold text-amber-600 mt-1">0</p>
-        <p class="text-xs text-slate-400 mt-2">Abaixo ou igual ao mínimo</p>
-      </div>
-
-      <div onclick="filtrarPorCard('NORMAL')" class="cursor-pointer bg-white p-5 rounded-2xl shadow-sm border-l-4 border-l-emerald-600 border border-slate-200 hover:border-emerald-400 transition">
-        <p class="text-xs font-semibold uppercase tracking-wider text-emerald-600">Estoque Normal</p>
-        <p id="card-normal" class="text-3xl font-bold text-emerald-600 mt-1">0</p>
-        <p class="text-xs text-slate-400 mt-2">Abastecimento regular</p>
-      </div>
-    </section>
-
-    <!-- Busca e Filtro -->
-    <section class="bg-white p-4 rounded-2xl shadow-sm border border-slate-200 flex flex-col sm:flex-row gap-3 justify-between items-center">
-      <input type="text" id="busca" oninput="renderizarTabela()" placeholder="Buscar por nome, princípio ativo ou unidade..."
-        class="w-full sm:w-96 px-4 py-2 text-sm border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-600" />
-      <div class="flex items-center gap-2 w-full sm:w-auto">
-        <select id="filtro-status" onchange="renderizarTabela()"
-          class="w-full sm:w-auto px-3.5 py-2 text-sm border border-slate-300 rounded-xl bg-white font-medium text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-600">
-          <option value="TODOS">Todos os Status</option>
-          <option value="FALTA">Em Falta (Zerado)</option>
-          <option value="CRITICO">Nível Crítico</option>
-          <option value="NORMAL">Estoque Normal</option>
-        </select>
-        <button onclick="carregarMedicamentos()" class="px-3 py-2 text-sm text-slate-600 hover:bg-slate-100 rounded-xl border border-slate-200">
-          Atualizar
+      <div class="flex gap-2 w-full sm:w-auto">
+        <button onclick="copiarPedidoFalta()" class="flex-1 sm:flex-none bg-white/15 hover:bg-white/25 text-white text-xs font-semibold px-4 py-2 rounded-full transition">
+          Copiar p/ WhatsApp
+        </button>
+        <button onclick="selecionarFiltro('FALTA')" class="flex-1 sm:flex-none bg-white text-rose-700 hover:bg-rose-50 text-xs font-bold px-4 py-2 rounded-full shadow transition">
+          Filtrar Faltas
         </button>
       </div>
+    </div>
+
+    <!-- Cards de Métricas Clicáveis -->
+    <section class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+      <button onclick="selecionarFiltro('TODOS')" id="btn-card-TODOS" class="text-left bg-white p-5 rounded-2xl border-2 border-gerci-600 shadow-sm card-hover">
+        <div class="flex justify-between items-center">
+          <span class="text-xs font-bold uppercase text-slate-400">Catálogo Total</span>
+          <span class="w-8 h-8 rounded-xl bg-gerci-100 text-gerci-700 flex items-center justify-center font-bold text-sm">#</span>
+        </div>
+        <p id="card-total" class="text-3xl font-extrabold text-slate-900 mt-2">0</p>
+        <p class="text-xs text-gerci-600 font-semibold mt-1">Ver todos os itens →</p>
+      </button>
+
+      <button onclick="selecionarFiltro('FALTA')" id="btn-card-FALTA" class="text-left bg-white p-5 rounded-2xl border-2 border-transparent shadow-sm card-hover">
+        <div class="flex justify-between items-center">
+          <span class="text-xs font-bold uppercase text-rose-600">Em Falta (Zero)</span>
+          <span class="w-8 h-8 rounded-xl bg-rose-100 text-rose-600 flex items-center justify-center font-bold text-sm">0</span>
+        </div>
+        <p id="card-falta" class="text-3xl font-extrabold text-rose-600 mt-2">0</p>
+        <p class="text-xs text-slate-400 font-medium mt-1">Ruptura de estoque</p>
+      </button>
+
+      <button onclick="selecionarFiltro('CRITICO')" id="btn-card-CRITICO" class="text-left bg-white p-5 rounded-2xl border-2 border-transparent shadow-sm card-hover">
+        <div class="flex justify-between items-center">
+          <span class="text-xs font-bold uppercase text-amber-600">Estoque Baixo</span>
+          <span class="w-8 h-8 rounded-xl bg-amber-100 text-amber-600 flex items-center justify-center font-bold text-sm">!</span>
+        </div>
+        <p id="card-critico" class="text-3xl font-extrabold text-amber-600 mt-2">0</p>
+        <p class="text-xs text-slate-400 font-medium mt-1">Abaixo do mínimo</p>
+      </button>
+
+      <button onclick="selecionarFiltro('NORMAL')" id="btn-card-NORMAL" class="text-left bg-white p-5 rounded-2xl border-2 border-transparent shadow-sm card-hover">
+        <div class="flex justify-between items-center">
+          <span class="text-xs font-bold uppercase text-emerald-600">Disponíveis</span>
+          <span class="w-8 h-8 rounded-xl bg-emerald-100 text-emerald-600 flex items-center justify-center font-bold text-sm">✓</span>
+        </div>
+        <p id="card-normal" class="text-3xl font-extrabold text-emerald-600 mt-2">0</p>
+        <p class="text-xs text-slate-400 font-medium mt-1">Abastecimento normal</p>
+      </button>
     </section>
 
-    <!-- Tabela de Medicamentos -->
-    <section class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-x-auto">
-      <table class="w-full text-left border-collapse">
-        <thead>
-          <tr class="bg-slate-50 border-b border-slate-200 text-xs uppercase text-slate-500">
-            <th class="py-3.5 px-4">Situação</th>
-            <th class="py-3.5 px-4">Medicamento / Princípio Ativo</th>
-            <th class="py-3.5 px-4">Unidade / Local</th>
-            <th class="py-3.5 px-4 text-center">Estoque Atual / Mín.</th>
-            <th class="py-3.5 px-4 text-center">Ajuste Rápido</th>
-            <th class="py-3.5 px-4 text-right">Gerenciar</th>
-          </tr>
-        </thead>
-        <tbody id="lista-medicamentos" class="divide-y divide-slate-100 text-sm">
-          <tr><td colspan="6" class="text-center py-8 text-slate-400">Carregando dados do banco...</td></tr>
-        </tbody>
-      </table>
-    </section>
-  </main>
-
-  <footer class="text-center text-xs text-slate-400 py-5">
-    FarmaControl — Sistema de Gestão e Monitoramento de Falta de Medicamentos
-  </footer>
-
-  <!-- Modal de Cadastro / Edição -->
-  <div id="modal-cadastro" class="fixed inset-0 bg-slate-900/60 backdrop-blur-xs hidden items-center justify-center p-4 z-50">
-    <div class="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl border border-slate-200">
-      <div class="flex justify-between items-center mb-4">
-        <h2 id="modal-titulo" class="text-lg font-bold text-slate-900">Cadastrar Novo Medicamento</h2>
-        <button onclick="fecharModal()" class="text-slate-400 hover:text-slate-600 text-2xl leading-none">&times;</button>
+    <!-- Barra de Controle: Pílulas de Filtro + Troca de Visualização -->
+    <section class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 pt-1">
+      <div class="flex flex-wrap gap-2">
+        <button onclick="selecionarFiltro('TODOS')" data-pill="TODOS" class="pill-btn bg-gerci-700 text-white px-4 py-1.5 rounded-full text-xs font-bold transition">Todos</button>
+        <button onclick="selecionarFiltro('FALTA')" data-pill="FALTA" class="pill-btn bg-white text-slate-600 hover:bg-purple-50 px-4 py-1.5 rounded-full text-xs font-bold border border-slate-200 transition">Em Falta</button>
+        <button onclick="selecionarFiltro('CRITICO')" data-pill="CRITICO" class="pill-btn bg-white text-slate-600 hover:bg-purple-50 px-4 py-1.5 rounded-full text-xs font-bold border border-slate-200 transition">Nível Crítico</button>
+        <button onclick="selecionarFiltro('NORMAL')" data-pill="NORMAL" class="pill-btn bg-white text-slate-600 hover:bg-purple-50 px-4 py-1.5 rounded-full text-xs font-bold border border-slate-200 transition">Disponível</button>
       </div>
 
-      <form id="form-medicamento" class="space-y-4">
-        <input type="hidden" id="edit-id" value="" />
-
-        <div>
-          <div class="flex justify-between items-center mb-1">
-            <label class="block text-sm font-medium text-slate-700">Nome do Medicamento (ex: Trazodona 50mg) *</label>
-            <span id="badge-ia" class="text-[11px] font-medium text-blue-600"></span>
-          </div>
-          <input type="text" id="nome" required oninput="aoDigitarMedicamento()" placeholder="Digite o nome e dosagem (ex: Trazodona 50mg)"
-            class="w-full border border-slate-300 rounded-xl px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-600" />
-          <p class="text-[11px] text-slate-400 mt-1">Ao digitar o nome e a dosagem, o sistema identifica automaticamente o princípio ativo e a concentração.</p>
-        </div>
-
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-          <div>
-            <label class="block text-sm font-medium text-slate-700 mb-1">Princípio Ativo</label>
-            <input type="text" id="principio_ativo" placeholder="Preenchido automaticamente..."
-              class="w-full border border-slate-300 bg-slate-50 rounded-xl px-3.5 py-2 text-sm focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-600" />
-          </div>
-          <div>
-            <label class="block text-sm font-medium text-slate-700 mb-1">Dosagem / Concentração</label>
+      <div class="flex items-center gap-2 self-end sm:self-auto">
