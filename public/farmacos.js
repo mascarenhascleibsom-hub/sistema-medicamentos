@@ -35,7 +35,6 @@ window.ORIGINAIS = {
   tobradex: 'Tobramicina + Dexametasona', vigamox: 'Cloridrato de Moxifloxacino',
   maxitrol: 'Dexametasona + Neomicina + Polimixina B', systane: 'Polietilenoglicol + Propilenoglicol'
 };
-
 window.SIMILARES = {
   aradois: 'Losartana Potássica', anador: 'Dipirona Monoidratada', maxalgina: 'Dipirona Monoidratada',
   conmel: 'Dipirona Monoidratada', termopirona: 'Dipirona Monoidratada', magnopyrol: 'Dipirona Monoidratada',
@@ -107,7 +106,6 @@ window.SIMILARES = {
   femina: 'Desogestrel + Etinilestradiol', nivelar: 'Levonorgestrel + Etinilestradiol',
   kelly: 'Desogestrel', nactali: 'Desogestrel', lacrim: 'Carmelose Sódica', ecofilm: 'Carmelose Sódica'
 };
-
 window.GENERICOS = {
   trazodona: 'Cloridrato de Trazodona', trimebutina: 'Maleato de Trimebutina',
   dipirona: 'Dipirona Monoidratada', paracetamol: 'Paracetamol', ibuprofeno: 'Ibuprofeno',
