@@ -1,6 +1,7 @@
 window.ORIGINAIS = {
   donaren: 'Cloridrato de Trazodona', debridat: 'Maleato de Trimebutina', digesan: 'Maleato de Trimebutina',
   novalgina: 'Dipirona Monoidratada', tylenol: 'Paracetamol', advil: 'Ibuprofeno',
+  mylanta: 'Hidróxido de Alumínio + Hidróxido de Magnésio + Simeticona',
   amoxil: 'Amoxicilina Tri-hidratada', clavulin: 'Amoxicilina + Clavulanato de Potássio',
   astro: 'Azitromicina Di-hidratada', zitro: 'Azitromicina Di-hidratada',
   keflex: 'Cefalexina Monoidratada', cipro: 'Cloridrato de Ciprofloxacino',
@@ -61,6 +62,7 @@ window.ORIGINAIS = {
 };
 
 window.SIMILARES = {
+  diad: 'Pamoato de Pirvínio', guaco: 'Mikania glomerata (Xarope)',
   aradois: 'Losartana Potássica', losartec: 'Losartana Potássica', torlos: 'Losartana Potássica', corus: 'Losartana Potássica',
   anador: 'Dipirona Monoidratada', maxalgina: 'Dipirona Monoidratada', conmel: 'Dipirona Monoidratada',
   termopirona: 'Dipirona Monoidratada', magnopyrol: 'Dipirona Monoidratada',
@@ -123,16 +125,7 @@ window.SIMILARES = {
   levoid: 'Levotiroxina Sódica', tiroidin: 'Levotiroxina Sódica',
   nebacetin: 'Sulfato de Neomicina + Bacitracina', bepantol: 'Dexpantenol', bepantriz: 'Dexpantenol',
   addera: 'Colecalciferol (Vitamina D3)', doss: 'Colecalciferol (Vitamina D3)',
-  noripurum: 'Ferripolimaltose', combiron: 'Ferro Carbonila + Vitaminas',
-  endofolin: 'Ácido Fólico', neutrofer: 'Ferro Quelato Glicinato',
-  somalgin: 'Ácido Acetilsalicílico', aas: 'Ácido Acetilsalicílico',
-  helleva: 'Carbonato de Lodenafila', azulzinho: 'Citrato de Sildenafila',
-  iumi: 'Drospirenona + Etinilestradiol', diclin: 'Acetato de Ciproterona + Etinilestradiol',
-  femina: 'Desogestrel + Etinilestradiol', nivelar: 'Levonorgestrel + Etinilestradiol',
-  kelly: 'Desogestrel', nactali: 'Desogestrel', lacrim: 'Carmelose Sódica', ecofilm: 'Carmelose Sódica'
-};
-
-window.GENERICOS = {
+  window.GENERICOS = {
   trazodona: 'Cloridrato de Trazodona', trimebutina: 'Maleato de Trimebutina',
   dipirona: 'Dipirona Monoidratada', paracetamol: 'Paracetamol', ibuprofeno: 'Ibuprofeno',
   amoxicilina: 'Amoxicilina Tri-hidratada', azitromicina: 'Azitromicina Di-hidratada',
