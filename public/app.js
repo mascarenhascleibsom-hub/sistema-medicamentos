@@ -55,7 +55,6 @@ function classificarRemedio(texto) {
   var cap = texto.trim();
   return { principio: cap.charAt(0).toUpperCase() + cap.slice(1), tipo: 'Similar', forma: forma };
 }
-
 function montarTela() {
   var root = document.getElementById('app');
   root.innerHTML = '';
@@ -252,7 +251,6 @@ function montarTela() {
   mBg.appendChild(modal);
   root.appendChild(mBg);
 }
-
 function reconhecer() {
   var txt = document.getElementById('nome').value;
   var partes = txt.split(' ');
@@ -308,6 +306,7 @@ function tipoDe(m) {
 async function carregar() {
   try {
     var res = await fetch('/api/medicamentos');
+    if (!res.ok) throw new Error('HTTP ' + res.status);
     lista = await res.json();
     document.getElementById('status-db').textContent = '● Sistema Online';
     var f = 0, c = 0, n = 0;
@@ -321,7 +320,7 @@ async function carregar() {
     document.getElementById('m-normal').textContent = n;
     renderizar();
   } catch (e) {
-    document.getElementById('status-db').textContent = '● Erro de conexão';
+    document.getElementById('status-db').textContent = '● Erro: ' + e.message;
   }
 }
 
@@ -349,7 +348,6 @@ function obterFiltrados() {
     return true;
   });
 }
-
 function renderizar() {
   var filtrados = obterFiltrados();
   var box = document.getElementById('vitrine');
@@ -403,8 +401,9 @@ function renderizar() {
     var subst = (m.principio_ativo && norm(m.principio_ativo) !== norm(m.nome))
       ? m.principio_ativo
       : (autoInfo ? autoInfo.principio : m.nome);
+    var nomeUni = (m.unidade_saude || 'FarmaGerci Matriz').split('•').shift().trim();
     ci.appendChild(el('div', '', 'Substância: ' + subst));
-    ci.appendChild(el('div', '', 'Lista: ' + tipoDetectado + ' • ' + (m.unidade_saude || 'FarmaGerci Matriz').split('•').trim()));
+    ci.appendChild(el('div', '', 'Lista: ' + tipoDetectado + ' • ' + nomeUni));
     card.appendChild(ci);
 
     var sr = el('div', 'strow');
@@ -472,8 +471,8 @@ function editar(id) {
   document.getElementById('principio').value = m.principio_ativo || '';
   document.getElementById('dosagem').value = m.dosagem || '';
   var partesUni = (m.unidade_saude || 'FarmaGerci Matriz').split('•');
-  document.getElementById('unidade').value = partesUni.trim();
-  document.getElementById('tipo_med').value = partesUni ? partesUni.trim() : '';
+  document.getElementById('unidade').value = (partesUni.shift() || 'FarmaGerci Matriz').trim();
+  document.getElementById('tipo_med').value = (partesUni.shift() || '').trim();
   document.getElementById('atual').value = m.estoque_atual;
   document.getElementById('minimo').value = m.estoque_minimo;
   reconhecer();
@@ -517,7 +516,7 @@ async function salvarFormulario(e) {
 
 function copiarPedido() {
   var itens = obterFiltrados();
-    if (!itens.length) { avisar('Nenhum item nesta lista para copiar!'); return; }
+  if (!itens.length) { avisar('Nenhum item nesta lista para copiar!'); return; }
   var txt = '*LISTA FARMAGERCI (' + filtroAtivo + ')*\n\n' + itens.map(function(m) {
     return '- ' + m.nome + (m.dosagem ? ' [' + m.dosagem + ']' : '') + ' — ' + (m.principio_ativo || m.nome) + ' (' + tipoDe(m) + ')';
   }).join('\n');
