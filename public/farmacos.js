@@ -125,7 +125,16 @@ window.SIMILARES = {
   levoid: 'Levotiroxina Sódica', tiroidin: 'Levotiroxina Sódica',
   nebacetin: 'Sulfato de Neomicina + Bacitracina', bepantol: 'Dexpantenol', bepantriz: 'Dexpantenol',
   addera: 'Colecalciferol (Vitamina D3)', doss: 'Colecalciferol (Vitamina D3)',
-  window.GENERICOS = {
+  noripurum: 'Ferripolimaltose', combiron: 'Ferro Carbonila + Vitaminas',
+  endofolin: 'Ácido Fólico', neutrofer: 'Ferro Quelato Glicinato',
+  somalgin: 'Ácido Acetilsalicílico', aas: 'Ácido Acetilsalicílico',
+  helleva: 'Carbonato de Lodenafila', azulzinho: 'Citrato de Sildenafila',
+  iumi: 'Drospirenona + Etinilestradiol', diclin: 'Acetato de Ciproterona + Etinilestradiol',
+  femina: 'Desogestrel + Etinilestradiol', nivelar: 'Levonorgestrel + Etinilestradiol',
+  kelly: 'Desogestrel', nactali: 'Desogestrel', lacrim: 'Carmelose Sódica', ecofilm: 'Carmelose Sódica'
+};
+
+window.GENERICOS = {
   trazodona: 'Cloridrato de Trazodona', trimebutina: 'Maleato de Trimebutina',
   dipirona: 'Dipirona Monoidratada', paracetamol: 'Paracetamol', ibuprofeno: 'Ibuprofeno',
   amoxicilina: 'Amoxicilina Tri-hidratada', azitromicina: 'Azitromicina Di-hidratada',
