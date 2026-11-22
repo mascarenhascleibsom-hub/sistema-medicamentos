@@ -504,3 +504,12 @@ async function salvarFormulario(e) {
 function copiarPedido() {
   var itens = obterFiltrados();
   if (!itens.length) { avisar('Nenhum item nesta lista para copiar!'); return; }
+  var txt = '*LISTA FARMAGERCI (' + filtroAtivo + ')*\n\n' + itens.map(function(m) {
+    return '- ' + m.nome + (m.dosagem ? ' [' + m.dosagem + ']' : '') + ' — ' + (m.principio_ativo || m.nome) + ' (' + tipoDe(m) + ')';
+  }).join('\n');
+  navigator.clipboard.writeText(txt);
+  avisar('Lista copiada para o WhatsApp!');
+}
+
+montarTela();
+carregar();
