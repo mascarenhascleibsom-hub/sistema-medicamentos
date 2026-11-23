@@ -1026,3 +1026,23 @@ Object.assign(window.SIMILARES, {
   fibrase: 'Fibrinolisina + Desoxirribonuclease + Cloranfenicol',
   kollagenase: 'Colagenase + Cloranfenicol'
 });
+
+Object.assign(window.ORIGINAIS, {
+  cozaar: 'Losartana Potássica',
+  dorflex: 'Dipirona Monoidratada + Citrato de Orfenadrina + Cafeína Anidra',
+  novalgina: 'Dipirona Monoidratada',
+  tylenol: 'Paracetamol',
+  advil: 'Ibuprofeno',
+  buscopan: 'Butilbrometo de Escopolamina',
+  voltaren: 'Diclofenaco Sódico',
+  cataflam: 'Diclofenaco Potássico',
+  rivotril: 'Clonazepam',
+  glifage: 'Cloridrato de Metformina',
+  puran: 'Levotiroxina Sódica',
+  'puran t4': 'Levotiroxina Sódica'
+});
+
+Object.assign(window.GENERICOS, {
+  losartana: 'Losartana Potássica',
+  'losartana potassica': 'Losartana Potássica'
+});
