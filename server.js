@@ -13,79 +13,8 @@ const pool = new Pool({
     : false
 });
 
-let baseAnvisa = [];
-
 function normTxt(t) {
   return (t || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').trim();
-}
-
-function colAt(arr, idx) {
-  return (arr.slice(idx, idx + 1).shift() || '').replace(/"/g, '').trim();
-}
-
-async function carregarBaseAnvisa() {
-  // Fontes abertas com dados da ANVISA sem bloqueio de firewall (HTTP 403)
-  const fontes = [
-    'https://githubusercontent.com',
-    'https://anvisa.gov.br'
-  ];
-
-  for (const url of fontes) {
-    try {
-      console.log('Tentando sincronizar catálogo: ' + url);
-      const resp = await fetch(url, {
-        headers: {
-          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36',
-          'Accept': 'text/csv,text/plain,*/*',
-          'Referer': 'https://anvisa.gov.br'
-        }
-      });
-      if (!resp.ok) {
-        console.log('Fonte indisponível (' + resp.status + '), tentando próxima...');
-        continue;
-      }
-      const buffer = await resp.arrayBuffer();
-      const texto = new TextDecoder('utf-8').decode(buffer).includes('Ã')
-        ? new TextDecoder('latin1').decode(buffer)
-        : new TextDecoder('utf-8').decode(buffer);
-      const linhas = texto.split(/\r?\n/);
-
-      const mapa = new Map();
-      for (let i = 1; i < linhas.length; i++) {
-        const cols = linhas[i].split(';');
-        if (cols.length < 11) continue;
-        const nomeProd = colAt(cols, 1);
-        const catReg = colAt(cols, 2);
-        const situacao = colAt(cols, 8).toUpperCase();
-        const principio = colAt(cols, 10);
-
-        if (!nomeProd || (situacao && situacao !== 'ATIVO' && situacao !== 'VÁLIDO' && situacao !== 'VALIDO')) continue;
-
-        let tipo = 'Similar';
-        const cNorm = normTxt(catReg);
-        if (cNorm.includes('generico')) tipo = 'Genérico';
-        else if (cNorm.includes('novo') || cNorm.includes('referencia') || cNorm.includes('biologico') || cNorm.includes('especifico')) tipo = 'Original';
-
-        const chave = normTxt(nomeProd);
-        if (!mapa.has(chave)) {
-          mapa.set(chave, {
-            nome: nomeProd,
-            nomeNorm: chave,
-            principio: principio || nomeProd,
-            principioNorm: normTxt(principio),
-            tipo
-          });
-        }
-      }
-      if (mapa.size > 100) {
-        baseAnvisa = Array.from(mapa.values());
-        console.log('Catálogo ANVISA pronto: ' + baseAnvisa.length + ' medicamentos ativos!');
-        return;
-      }
-    } catch (e) {
-      console.log('Erro na fonte:', e.message);
-    }
-  }
 }
 
 async function initDb() {
@@ -108,7 +37,6 @@ async function initDb() {
   }
 }
 initDb();
-carregarBaseAnvisa();
 
 app.get('/api/medicamentos', async (req, res) => {
   try {
@@ -154,9 +82,9 @@ app.delete('/api/medicamentos/:id', async (req, res) => {
   }
 });
 
-// Consulta Universal: Catálogo ANVISA + RxNorm + OpenFDA (Substância + Todas as Miligramas)
+// Consulta em Tempo Real: API Oficial ANVISA Consultas + RxNorm + OpenFDA
 app.get('/api/consultar-farmaco', async (req, res) => {
-  const termo = normTxt(req.query.q || '');
+  const termo = (req.query.q || '').trim();
   if (termo.length < 2) return res.json({ principio: '', tipo: '', dosagens: [], sugestoes: [] });
 
   let principio = '';
@@ -164,21 +92,64 @@ app.get('/api/consultar-farmaco', async (req, res) => {
   const dosagens = new Set();
   const sugestoes = [];
 
-  if (baseAnvisa.length > 0) {
-    const exato = baseAnvisa.find(m => m.nomeNorm === termo);
-    const parecidos = baseAnvisa.filter(m => m.nomeNorm.startsWith(termo) || m.principioNorm.startsWith(termo)).slice(0, 15);
-    const escolhido = exato || parecidos.slice(0, 1).shift();
-
-    if (escolhido) {
-      principio = escolhido.principio;
-      tipo = escolhido.tipo;
-    }
-    parecidos.forEach(p => {
-      sugestoes.push({ nome: p.nome, principio: p.principio, tipo: p.tipo });
+  // 1. Consulta direta na API JSON do Portal de Consultas da ANVISA
+  try {
+    const urlAnvisa = `https://anvisa.gov.br{encodeURIComponent(termo)}&page=1`;
+    const rAnv = await fetch(urlAnvisa, {
+      headers: {
+        'Accept': 'application/json, text/plain, */*',
+        'Authorization': 'Guest',
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) Chrome/124.0.0.0 Safari/537.36'
+      }
     });
-  }
 
-  // Busca as miligramas e o princípio ativo na base farmacológica internacional (sem bloqueio)
+    if (rAnv.ok) {
+      const dAnv = await rAnv.json();
+      const listaBr = (dAnv && dAnv.content) || [];
+      if (listaBr.length > 0) {
+        const primeiro = listaBr.slice(0, 1).shift();
+        if (primeiro.principioAtivo) principio = primeiro.principioAtivo;
+        const cat = normTxt(primeiro.categoriaRegulatoria);
+        if (cat.includes('generico')) tipo = 'Genérico';
+        else if (cat.includes('novo') || cat.includes('referencia') || cat.includes('biologico')) tipo = 'Original';
+        else if (cat.includes('similar')) tipo = 'Similar';
+
+        listaBr.forEach(item => {
+          let tItem = 'Similar';
+          const cI = normTxt(item.categoriaRegulatoria);
+          if (cI.includes('generico')) tItem = 'Genérico';
+          else if (cI.includes('novo') || cI.includes('referencia') || cI.includes('biologico')) tItem = 'Original';
+          sugestoes.push({
+            nome: item.nomeProduto,
+            principio: item.principioAtivo || item.nomeProduto,
+            tipo: tItem
+          });
+        });
+
+        // Busca apresentações/miligramas oficiais desse medicamento na ANVISA
+        if (primeiro.numProcesso) {
+          const rMed = await fetch(`https://anvisa.gov.br{primeiro.numProcesso}`, {
+            headers: {
+              'Accept': 'application/json',
+              'Authorization': 'Guest',
+              'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) Chrome/124.0.0.0 Safari/537.36'
+            }
+          });
+          if (rMed.ok) {
+            const det = await rMed.json();
+            const apres = det.apresentacoes || [];
+            apres.forEach(ap => {
+              const txtAp = ap.apresentacao || '';
+              const matches = txtAp.match(/\b\d+([.,]\d+)?\s*(mg|mcg|g|ml|ui|unt)(\s*\+\s*\d+([.,]\d+)?\s*(mg|mcg|g|ml|ui))?(\/ml|\/5ml|\/g)?\b/gi);
+              if (matches) matches.forEach(m => dosagens.add(m.toUpperCase()));
+            });
+          }
+        }
+      }
+    }
+  } catch (e) {}
+
+  // 2. Complemento garantido via RxNorm (sempre responde 200 OK e traz miligramas)
   const termosBusca = [principio, termo].filter(Boolean);
   for (const tBusca of termosBusca) {
     if (dosagens.size > 0 && principio) break;
