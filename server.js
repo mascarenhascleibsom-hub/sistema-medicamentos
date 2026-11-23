@@ -19,9 +19,13 @@ function normTxt(t) {
   return (t || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').trim();
 }
 
+function colAt(arr, idx) {
+  return (arr.slice(idx, idx + 1).shift() || '').replace(/"/g, '').trim();
+}
+
 async function carregarBaseAnvisa() {
   try {
-    console.log('Baixando catálogo oficial ANVISA...');
+    console.log('Sincronizando catálogo oficial ANVISA...');
     const url = 'https://anvisa.gov.br';
     const resp = await fetch(url);
     if (!resp.ok) throw new Error('HTTP ' + resp.status);
@@ -33,10 +37,10 @@ async function carregarBaseAnvisa() {
     for (let i = 1; i < linhas.length; i++) {
       const cols = linhas[i].split(';');
       if (cols.length < 11) continue;
-      const nomeProd = (cols[1] || '').replace(/"/g, '').trim();
-      const catReg = (cols[3] || '').replace(/"/g, '').trim();
-      const situacao = (cols[6] || '').replace(/"/g, '').trim().toUpperCase();
-      const principio = (cols[10] || '').replace(/"/g, '').trim();
+      const nomeProd = colAt(cols, 1);
+      const catReg = colAt(cols, 2);
+      const situacao = colAt(cols, 8).toUpperCase();
+      const principio = colAt(cols, 10);
 
       if (!nomeProd || situacao !== 'ATIVO') continue;
 
@@ -101,7 +105,7 @@ app.post('/api/medicamentos', async (req, res) => {
       'INSERT INTO medicamentos (nome, principio_ativo, dosagem, unidade_saude, estoque_atual, estoque_minimo) VALUES ($1,$2,$3,$4,$5,$6) RETURNING *',
       [nome, principio_ativo || nome, dosagem || '', unidade_saude || 'FarmaGerci Matriz', Number(estoque_atual) || 0, Number(estoque_minimo) || 10]
     );
-    res.json(r.rows[0]);
+    res.json(r.rows);
   } catch (e) {
     res.status(500).json({ erro: e.message });
   }
@@ -114,7 +118,7 @@ app.patch('/api/medicamentos/:id/estoque', async (req, res) => {
       'UPDATE medicamentos SET estoque_atual = GREATEST(0, estoque_atual + $1) WHERE id = $2 RETURNING *',
       [Number(quantidade), req.params.id]
     );
-    res.json(r.rows[0]);
+    res.json(r.rows);
   } catch (e) {
     res.status(500).json({ erro: e.message });
   }
@@ -129,7 +133,6 @@ app.delete('/api/medicamentos/:id', async (req, res) => {
   }
 });
 
-// Busca Universal: ANVISA (Substância + Tipo) + RxNorm (Miligramas reais)
 app.get('/api/consultar-farmaco', async (req, res) => {
   const termo = normTxt(req.query.q || '');
   if (termo.length < 2) return res.json({ principio: '', tipo: '', dosagens: [], sugestoes: [] });
@@ -142,7 +145,7 @@ app.get('/api/consultar-farmaco', async (req, res) => {
   if (baseAnvisa.length > 0) {
     const exato = baseAnvisa.find(m => m.nomeNorm === termo);
     const parecidos = baseAnvisa.filter(m => m.nomeNorm.startsWith(termo) || m.principioNorm.startsWith(termo)).slice(0, 15);
-    const escolhido = exato || parecidos[0];
+    const escolhido = exato || parecidos.slice(0, 1).shift();
 
     if (escolhido) {
       principio = escolhido.principio;
@@ -153,27 +156,30 @@ app.get('/api/consultar-farmaco', async (req, res) => {
     });
   }
 
-  // Busca as miligramas reais usando o princípio ativo (ou termo digitado)
-  const termoBuscaDose = principio || termo;
-  try {
-    const rRx = await fetch(`https://nih.gov{encodeURIComponent(termoBuscaDose)}&maxEntries=12`);
-    if (rRx.ok) {
-      const dRx = await rRx.json();
-      const cands = (dRx && dRx.approximateGroup && dRx.approximateGroup.candidate) || [];
-      for (const c of cands.slice(0, 8)) {
-        if (c.rxcui) {
-          const rProps = await fetch(`https://nih.gov{c.rxcui}/properties.json`);
-          if (rProps.ok) {
-            const dProps = await rProps.json();
-            const nomeOficial = dProps && dProps.properties && dProps.properties.name;
-            if (nomeOficial && !principio) principio = nomeOficial;
-            const matches = (nomeOficial || '').match(/\b\d+([.,]\d+)?\s*(mg|mcg|g|ml|ui|unt)(\/ml|\/5ml)?\b/gi);
-            if (matches) matches.forEach(m => dosagens.add(m.toLowerCase()));
+  // Busca miligramas na base farmacológica pelo princípio ativo ou pelo nome digitado
+  const termosBusca = [principio, termo].filter(Boolean);
+  for (const tBusca of termosBusca) {
+    if (dosagens.size > 0) break;
+    try {
+      const rRx = await fetch(`https://nih.gov{encodeURIComponent(tBusca)}&maxEntries=15`);
+      if (rRx.ok) {
+        const dRx = await rRx.json();
+        const cands = (dRx && dRx.approximateGroup && dRx.approximateGroup.candidate) || [];
+        for (const c of cands.slice(0, 10)) {
+          if (c.rxcui) {
+            const rProps = await fetch(`https://nih.gov{c.rxcui}/properties.json`);
+            if (rProps.ok) {
+              const dProps = await rProps.json();
+              const nomeOficial = dProps && dProps.properties && dProps.properties.name;
+              if (nomeOficial && !principio) principio = nomeOficial;
+              const matches = (nomeOficial || '').match(/\b\d+([.,]\d+)?\s*(mg|mcg|g|ml|ui|unt)(\/ml|\/5ml)?\b/gi);
+              if (matches) matches.forEach(m => dosagens.add(m.toLowerCase()));
+            }
           }
         }
       }
-    }
-  } catch (e) {}
+    } catch (e) {}
+  }
 
   res.json({
     principio: principio || '',
