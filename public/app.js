@@ -134,6 +134,10 @@ function selecionarCategoria(cat) {
   });
 }
 
+function montarTela() {
+  var root = document.getElementById('app');
+  root.innerHTML = '';
+
   var fotosCaixas = [
     'https://unsplash.com',
     'https://unsplash.com',
@@ -149,6 +153,17 @@ function selecionarCategoria(cat) {
   bgDiv.id = 'bg-remedio';
   bgDiv.style.backgroundImage = 'url("' + fotosCaixas[novoIdx] + '")';
   root.appendChild(bgDiv);
+
+  var toast = el('div', 'toast', 'Salvo!');
+  toast.id = 'toast';
+  root.appendChild(toast);
+
+  var top = el('div', 'top');
+  top.appendChild(el('span', '', 'Controle de Falta & Reposição • FarmaGerci'));
+  var stDb = el('span', '', '● Conectando...');
+  stDb.id = 'status-db';
+  top.appendChild(stDb);
+  root.appendChild(top);
 
   var hdr = el('header', 'hdr');
   var hdrIn = el('div', 'hdr-in');
@@ -179,8 +194,8 @@ function selecionarCategoria(cat) {
 
   var hero = el('section', 'hero');
   var hLeft = el('div');
-  hLeft.appendChild(el('span', 'hero-tag', 'DROGARIA DIGITAL FARMAGERCI • BRASIL A–Z'));
-  hLeft.appendChild(el('h2', '', 'Vitrine de Falta & Reposição'));
+  hLeft.appendChild(el('span', 'hero-tag', 'SISTEMA FARMACÊUTICO FARMAGERCI • BRASIL A–Z'));
+  hLeft.appendChild(el('h2', '', 'Central de Falta & Reposição'));
   hLeft.appendChild(el('p', '', 'Reconhecimento automático de Genéricos, Similares, Originais, Insulinas e Associações com seleção rápida de miligramas.'));
   hero.appendChild(hLeft);
   var hBtn = el('button', 'btn btn-w', '+ Novo Medicamento');
@@ -190,8 +205,8 @@ function selecionarCategoria(cat) {
 
   var metrics = el('section', 'metrics');
   [
-    { k: 'TODOS', t: 'Total Cadastrado', id: 'm-total', c: '#581c87' },
-    { k: 'FALTA', t: 'Em Falta (Zero)', id: 'm-falta', c: '#e11d48' },
+    { k: 'TODOS', t: 'Total Cadastrado', id: 'm-total', c: '#4c1d95' },
+    { k: 'FALTA', t: 'Em Falta (Zero)', id: 'm-falta', c: '#dc2626' },
     { k: 'CRITICO', t: 'Estoque Baixo', id: 'm-critico', c: '#d97706' },
     { k: 'NORMAL', t: 'Disponíveis', id: 'm-normal', c: '#059669' }
   ].forEach(function(d) {
@@ -261,7 +276,7 @@ function selecionarCategoria(cat) {
   lb1.appendChild(el('span', '', 'Medicamento (ex: Apresolina, Insulina NPH, Tylenol, Trazodona) *'));
   var bTipo = el('span', '', '');
   bTipo.id = 'badge-tipo';
-  bTipo.style.color = '#7e22ce';
+  bTipo.style.color = '#7c3aed';
   lb1.appendChild(bTipo);
   fg1.appendChild(lb1);
 
@@ -340,7 +355,7 @@ function selecionarCategoria(cat) {
     var bCat = el('button', 'pill', cat);
     bCat.type = 'button';
     bCat.setAttribute('data-cat', cat);
-    bCat.style.cssText = 'padding:10px 6px;font-size:12px;text-align:center;border-radius:12px';
+    bCat.style.cssText = 'padding:10px 6px;font-size:12px;text-align:center;border-radius:10px;border:1px solid #ddd6fe';
     bCat.onclick = function() { selecionarCategoria(cat); };
     wrapTipo.appendChild(bCat);
   });
@@ -457,7 +472,7 @@ function reconhecer(manterDoseAtual) {
 
   for (var i = 0; i < partes.length; i++) {
     var p = partes[i].toLowerCase();
-    if (p.indexOf('mg') > 0 || p.indexOf('ml') > 0 || p.indexOf('mcg') > 0 || p.indexOf('ui') > 0 || (p.length > 1 && p.endsWith('g') && !isNaN(p))) {
+    if (p.indexOf('mg') > 0 || p.indexOf('ml') > 0 || p.indexOf('mcg') > 0 || p.indexOf('ui') > 0 || (p.length > 1 && p.endsWith('g') && !isNaN(p[0]))) {
       doseExtraida = partes[i];
       semDose = txt.replace(partes[i], '').trim();
     }
@@ -611,7 +626,7 @@ function renderizar() {
     var pct = Math.min(100, Math.round((atual / (min * 2)) * 100));
     var bCls = st === 'FALTA' ? 'bf' : (st === 'CRITICO' ? 'bc' : 'bn');
     var bTxt = st === 'FALTA' ? 'Em Falta' : (st === 'CRITICO' ? 'Estoque Baixo' : 'Disponível');
-    var cor = st === 'FALTA' ? '#e11d48' : (st === 'CRITICO' ? '#d97706' : '#7e22ce');
+    var cor = st === 'FALTA' ? '#dc2626' : (st === 'CRITICO' ? '#d97706' : '#7c3aed');
 
     var card = el('div', 'card');
     var ctop = el('div', 'ctop');
