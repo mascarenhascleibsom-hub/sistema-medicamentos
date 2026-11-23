@@ -1,5 +1,4 @@
 window.ORIGINAIS = {
-  // Referência Clínica, Psiquiatria & Neurologia
   donaren: 'Cloridrato de Trazodona', debridat: 'Maleato de Trimebutina', digesan: 'Bromoprida',
   rivotril: 'Clonazepam', valium: 'Diazepam', frontal: 'Alprazolam',
   lexotan: 'Bromazepam', lorax: 'Lorazepam', dormonid: 'Maleato de Midazolam',
@@ -19,8 +18,6 @@ window.ORIGINAIS = {
   lamictal: 'Lamotrigina', topamax: 'Topiramato', lyrica: 'Pregabalina', neurontin: 'Gabapentina',
   ritalina: 'Cloridrato de Metilfenidato', concerta: 'Cloridrato de Metilfenidato',
   venvanse: 'Dimesilato de Lisdexanfetamina',
-
-  // Analgésicos, Anti-inflamatórios & Relaxantes (Referência)
   novalgina: 'Dipirona Monoidratada', tylenol: 'Paracetamol', advil: 'Ibuprofeno',
   cataflam: 'Diclofenaco Potássico', voltaren: 'Diclofenaco Sódico',
   profenid: 'Cetoprofeno', flanax: 'Naproxeno Sódico', feldene: 'Piroxicam',
@@ -28,8 +25,6 @@ window.ORIGINAIS = {
   nisulid: 'Nimesulida', tramal: 'Cloridrato de Tramadol',
   tylex: 'Paracetamol + Fosfato de Codeína', paco: 'Paracetamol + Fosfato de Codeína',
   dimorf: 'Sulfato de Morfina', miosan: 'Cloridrato de Ciclobenzaprina',
-
-  // Antibióticos, Antifúngicos & Antiparasitários (Referência)
   amoxil: 'Amoxicilina Tri-hidratada', clavulin: 'Amoxicilina + Clavulanato de Potássio',
   astro: 'Azitromicina Di-hidratada', zitromax: 'Azitromicina Di-hidratada',
   keflex: 'Cefalexina Monoidratada', zinnat: 'Axetilcefuroxima',
@@ -39,8 +34,6 @@ window.ORIGINAIS = {
   vibramicina: 'Cloridrato de Doxiciclina', klaricid: 'Claritromicina',
   zoltec: 'Fluconazol', sporanox: 'Itraconazol', nizoral: 'Cetoconazol',
   zovirax: 'Aciclovir', annita: 'Nitazoxanida', revectina: 'Ivermectina', zentel: 'Albendazol',
-
-  // Cardiologia, Pressão & Colesterol (Referência)
   cozaar: 'Losartana Potássica', aradois: 'Losartana Potássica',
   renitec: 'Maleato de Enalapril', capoten: 'Captopril', triatec: 'Ramipril',
   diovan: 'Valsartana', benicar: 'Olmesartana Medoxomila',
@@ -52,8 +45,6 @@ window.ORIGINAIS = {
   zocor: 'Sinvastatina', lipitor: 'Atorvastatina Cálcica', citalor: 'Atorvastatina Cálcica',
   crestor: 'Rosuvastatina Cálcica', zetia: 'Ezetimiba',
   xarelto: 'Rivaroxabana', eliquis: 'Apixabana', plavix: 'Bissulfato de Clopidogrel', marevan: 'Varfarina Sódica',
-
-  // Diabetes, Tireoide & Gastro / Geleias Orais (Referência)
   glifage: 'Cloridrato de Metformina', daonil: 'Glibenclamida', amaryl: 'Glimepirida',
   diamicron: 'Gliclazida', galvus: 'Vildagliptina', januvia: 'Fosfato de Sitagliptina',
   forxiga: 'Dapagliflozina', jardiance: 'Empagliflozina',
@@ -70,8 +61,6 @@ window.ORIGINAIS = {
   naturetti: 'Senna alexandrina + Cassia fistula (Geleia/Cápsula)',
   lactulona: 'Lactulose', metamucil: 'Plantago ovata (Psyllium)', muvinlax: 'Macrogol + Eletrólitos',
   dulcolax: 'Bisacodil', guttalax: 'Picossulfato de Sódio',
-
-  // Respiratório, Alergia, Pomadas Dermatológicas & Oftálmicos (Referência)
   claritin: 'Loratadina', desalex: 'Desloratadina', allegra: 'Cloridrato de Fexofenadina',
   zyrtec: 'Dicloridrato de Cetirizina', zina: 'Dicloridrato de Levocetirizina', alektos: 'Bilastina',
   polaramine: 'Maleato de Dexclorfeniramina', fenergan: 'Cloridrato de Prometazina',
@@ -104,7 +93,6 @@ window.ORIGINAIS = {
 };
 
 window.SIMILARES = {
-  // Analgésicos, Gripais & Anti-inflamatórios Similares
   anador: 'Dipirona Monoidratada', maxalgina: 'Dipirona Monoidratada', conmel: 'Dipirona Monoidratada',
   termopirona: 'Dipirona Monoidratada', magnopyrol: 'Dipirona Monoidratada', dipimed: 'Dipirona Monoidratada',
   tylaflan: 'Paracetamol', doricin: 'Paracetamol', sonridor: 'Paracetamol + Cafeína',
@@ -127,8 +115,6 @@ window.SIMILARES = {
   apracur: 'Dipirona + Maleato de Clorfeniramina + Ácido Ascórbico',
   naramig: 'Cloridrato de Naratriptana', sumax: 'Succinato de Sumatriptana',
   biofenac: 'Diclofenaco Sódico', flancox: 'Etodolaco',
-
-  // Xaropes, Alergia, Pomadas Similares & Geleias
   guaco: 'Mikania glomerata (Xarope Fitoterápico)', melagriao: 'Mikania glomerata + Polígala + Acônito (Xarope)',
   histamin: 'Maleato de Dexclorfeniramina', polaryn: 'Maleato de Dexclorfeniramina',
   hixizine: 'Cloridrato de Hidroxizina', prurizin: 'Cloridrato de Hidroxizina',
@@ -138,8 +124,7 @@ window.SIMILARES = {
   predsim: 'Fosfato Sódico de Prednisolona',
   celestrat: 'Maleato de Dexclorfeniramina + Betametasona',
   koide: 'Betametasona + Maleato de Dexclorfeniramina',
-  busonid: 'Budesonida', noex: 'Budesonida',
-  cisteil: 'Acetilcisteína',
+  busonid: 'Budesonida', noex: 'Budesonida', cisteil: 'Acetilcisteína',
   expec: 'Guaifenesina + Oxomemazina + Benzoato de Sódio',
   expectamin: 'Maleato de Dexclorfeniramina + Pseudoefedrina + Guaifenesina',
   vick: 'Guaifenesina', filinar: 'Acebrofilina', brondilat: 'Acebrofilina',
@@ -151,8 +136,6 @@ window.SIMILARES = {
   senaretti: 'Senna alexandrina + Cassia fistula (Geleia Oral)',
   tamarilex: 'Senna alexandrina + Cassia fistula (Geleia Oral)',
   almeidaprado: 'Complexo Homeopático Laxativo',
-
-  // Psiquiatria, Gastro, Cardio & Outros Similares
   daforin: 'Cloridrato de Fluoxetina', fluxene: 'Cloridrato de Fluoxetina', psiquial: 'Cloridrato de Fluoxetina',
   exodus: 'Oxalato de Escitalopram', reconter: 'Oxalato de Escitalopram', esc: 'Oxalato de Escitalopram',
   tolrest: 'Cloridrato de Sertralina', serenata: 'Cloridrato de Sertralina', assert: 'Cloridrato de Sertralina',
@@ -254,4 +237,193 @@ window.GENERICOS = {
   drospirenona: 'Drospirenona + Etinilestradiol', desogestrel: 'Desogestrel',
   levonorgestrel: 'Levonorgestrel + Etinilestradiol', ciproterona: 'Acetato de Ciproterona + Etinilestradiol',
   tobramicina: 'Tobramicina', moxifloxacino: 'Cloridrato de Moxifloxacino', carmelose: 'Carmelose Sódica'
+};
+
+window.VARIACOES = {
+  tylenol: [
+    { label: '500mg (Comprimido)', sub: 'Paracetamol' },
+    { label: '750mg (Comprimido)', sub: 'Paracetamol' },
+    { label: 'DC (500mg + Cafeína 65mg)', sub: 'Paracetamol + Cafeína' },
+    { label: 'Sinus (500mg + Pseudoefedrina 30mg)', sub: 'Paracetamol + Cloridrato de Pseudoefedrina' },
+    { label: '200mg/ml (Gotas)', sub: 'Paracetamol' },
+    { label: '32mg/ml (Suspensão Infantil)', sub: 'Paracetamol' }
+  ],
+  paracetamol: [
+    { label: '500mg', sub: 'Paracetamol' },
+    { label: '750mg', sub: 'Paracetamol' },
+    { label: '500mg + Cafeína 65mg (Tipo DC)', sub: 'Paracetamol + Cafeína' },
+    { label: '500mg + Pseudoefedrina 30mg (Tipo Sinus)', sub: 'Paracetamol + Cloridrato de Pseudoefedrina' },
+    { label: '500mg + Codeína 30mg (Tipo Paco/Tylex)', sub: 'Paracetamol + Fosfato de Codeína' },
+    { label: '200mg/ml (Gotas)', sub: 'Paracetamol' }
+  ],
+  buscopan: [
+    { label: '10mg (Simples Drágea)', sub: 'Butilbrometo de Escopolamina' },
+    { label: '10mg/ml (Simples Gotas)', sub: 'Butilbrometo de Escopolamina' },
+    { label: 'Composto (10mg + Dipirona 250mg)', sub: 'Butilbrometo de Escopolamina + Dipirona Monoidratada' },
+    { label: 'Composto Gotas (Escopolamina + Dipirona)', sub: 'Butilbrometo de Escopolamina + Dipirona Monoidratada' },
+    { label: 'Buscoduo (10mg + Paracetamol 500mg)', sub: 'Butilbrometo de Escopolamina + Paracetamol' }
+  ],
+  escopolamina: [
+    { label: '10mg (Simples)', sub: 'Butilbrometo de Escopolamina' },
+    { label: '10mg/ml (Gotas)', sub: 'Butilbrometo de Escopolamina' },
+    { label: 'Composta (+ Dipirona 250mg)', sub: 'Butilbrometo de Escopolamina + Dipirona Monoidratada' },
+    { label: 'Composta (+ Paracetamol 500mg)', sub: 'Butilbrometo de Escopolamina + Paracetamol' }
+  ],
+  losartana: [
+    { label: '25mg (Simples)', sub: 'Losartana Potássica' },
+    { label: '50mg (Simples)', sub: 'Losartana Potássica' },
+    { label: '100mg (Simples)', sub: 'Losartana Potássica' },
+    { label: '50mg + Hidroclorotiazida 12,5mg', sub: 'Losartana Potássica + Hidroclorotiazida' },
+    { label: '100mg + Hidroclorotiazida 25mg', sub: 'Losartana Potássica + Hidroclorotiazida' }
+  ],
+  aradois: [
+    { label: '25mg (Simples)', sub: 'Losartana Potássica' },
+    { label: '50mg (Simples)', sub: 'Losartana Potássica' },
+    { label: '100mg (Simples)', sub: 'Losartana Potássica' },
+    { label: 'H (50mg + Hidroclorotiazida 12,5mg)', sub: 'Losartana Potássica + Hidroclorotiazida' },
+    { label: 'H (100mg + Hidroclorotiazida 25mg)', sub: 'Losartana Potássica + Hidroclorotiazida' }
+  ],
+  valsartana: [
+    { label: '80mg', sub: 'Valsartana' },
+    { label: '160mg', sub: 'Valsartana' },
+    { label: '320mg', sub: 'Valsartana' },
+    { label: '80mg + Hidroclorotiazida 12,5mg', sub: 'Valsartana + Hidroclorotiazida' },
+    { label: '160mg + Hidroclorotiazida 12,5mg', sub: 'Valsartana + Hidroclorotiazida' },
+    { label: '160mg + Anlodipino 5mg', sub: 'Valsartana + Besilato de Anlodipino' }
+  ],
+  enalapril: [
+    { label: '5mg', sub: 'Maleato de Enalapril' },
+    { label: '10mg', sub: 'Maleato de Enalapril' },
+    { label: '20mg', sub: 'Maleato de Enalapril' },
+    { label: '10mg + Hidroclorotiazida 25mg', sub: 'Maleato de Enalapril + Hidroclorotiazida' },
+    { label: '20mg + Hidroclorotiazida 12,5mg', sub: 'Maleato de Enalapril + Hidroclorotiazida' }
+  ],
+  amoxicilina: [
+    { label: '500mg (Simples)', sub: 'Amoxicilina Tri-hidratada' },
+    { label: '875mg (Simples)', sub: 'Amoxicilina Tri-hidratada' },
+    { label: '250mg/5ml (Suspensão)', sub: 'Amoxicilina Tri-hidratada' },
+    { label: '500mg + Clavulanato 125mg', sub: 'Amoxicilina + Clavulanato de Potássio' },
+    { label: '875mg + Clavulanato 125mg', sub: 'Amoxicilina + Clavulanato de Potássio' },
+    { label: '250mg + 62,5mg/5ml (Suspensão)', sub: 'Amoxicilina + Clavulanato de Potássio' }
+  ],
+  metformina: [
+    { label: '500mg', sub: 'Cloridrato de Metformina' },
+    { label: '850mg', sub: 'Cloridrato de Metformina' },
+    { label: '1g', sub: 'Cloridrato de Metformina' },
+    { label: '500mg XR', sub: 'Cloridrato de Metformina' },
+    { label: '500mg + Glibenclamida 5mg', sub: 'Cloridrato de Metformina + Glibenclamida' },
+    { label: '1000mg + Dapagliflozina 10mg', sub: 'Dapagliflozina + Cloridrato de Metformina' }
+  ],
+  dipirona: [
+    { label: '500mg', sub: 'Dipirona Monoidratada' },
+    { label: '1g', sub: 'Dipirona Monoidratada' },
+    { label: '500mg/ml (Gotas)', sub: 'Dipirona Monoidratada' },
+    { label: '50mg/ml (Xarope Infantil)', sub: 'Dipirona Monoidratada' },
+    { label: '+ Orfenadrina + Cafeína (Tipo Dorflex)', sub: 'Dipirona + Citrato de Orfenadrina + Cafeína' },
+    { label: '+ Isometepteno + Cafeína (Tipo Neosaldina)', sub: 'Dipirona + Mucato de Isometepteno + Cafeína' }
+  ],
+  dorflex: [
+    { label: 'Simples (Dipirona + Orfenadrina + Cafeína)', sub: 'Dipirona Monoidratada + Citrato de Orfenadrina + Cafeína' },
+    { label: 'Max (Dipirona 1g + Orfenadrina + Cafeína)', sub: 'Dipirona Monoidratada + Citrato de Orfenadrina + Cafeína' },
+    { label: 'Uno (Dipirona 1g)', sub: 'Dipirona Monoidratada' }
+  ],
+  neosaldina: [
+    { label: 'Drágeas (Dipirona + Isometepteno + Cafeína)', sub: 'Dipirona + Mucato de Isometepteno + Cafeína' },
+    { label: 'Gotas', sub: 'Dipirona + Cloridrato de Isometepteno + Cafeína' },
+    { label: 'Muscular (Dipirona + Orfenadrina + Cafeína)', sub: 'Dipirona + Citrato de Orfenadrina + Cafeína' }
+  ],
+  cimegripe: [
+    { label: 'Cápsulas (Paracetamol + Clorfeniramina + Fenilefrina)', sub: 'Paracetamol + Maleato de Clorfeniramina + Cloridrato de Fenilefrina' },
+    { label: 'Dia (Sem Sono)', sub: 'Paracetamol + Cloridrato de Fenilefrina' },
+    { label: 'Gotas Infantil', sub: 'Paracetamol + Maleato de Clorfeniramina + Cloridrato de Fenilefrina' }
+  ],
+  benegrip: [
+    { label: 'Comprimidos', sub: 'Dipirona + Maleato de Clorfeniramina + Cafeína' },
+    { label: 'Multi (Xarope/Líquido)', sub: 'Paracetamol + Cloridrato de Fenilefrina + Maleato de Carbinoxamina' }
+  ]
+};
+
+window.DOSAGENS_SIMPLES = {
+  trazodona: ['50mg', '100mg', '150mg (Liberação Prolongada)'],
+  donaren: ['50mg', '100mg', '150mg Retard'],
+  trimebutina: ['200mg', '12mg/ml (Suspensão)'],
+  debridat: ['200mg', '12mg/ml (Suspensão)'],
+  azitromicina: ['500mg', '1g', '600mg (Suspensão)', '900mg (Suspensão)'],
+  cefalexina: ['500mg', '1g', '250mg/5ml (Suspensão)'],
+  ciprofloxacino: ['500mg'],
+  anlodipino: ['2,5mg', '5mg', '10mg'],
+  propranolol: ['10mg', '40mg', '80mg'],
+  metoprolol: ['25mg', '50mg', '100mg'],
+  carvedilol: ['3,125mg', '6,25mg', '12,5mg', '25mg'],
+  hidroclorotiazida: ['25mg', '50mg'],
+  furosemida: ['40mg'],
+  espironolactona: ['25mg', '50mg', '100mg'],
+  sinvastatina: ['10mg', '20mg', '40mg'],
+  atorvastatina: ['10mg', '20mg', '40mg', '80mg'],
+  rosuvastatina: ['5mg', '10mg', '20mg', '40mg'],
+  glifage: ['500mg', '850mg', '1g', '500mg XR', '850mg XR'],
+  gliclazida: ['30mg MR', '60mg MR'],
+  glimepirida: ['1mg', '2mg', '4mg'],
+  dapagliflozina: ['10mg'],
+  empagliflozina: ['10mg', '25mg'],
+  ozempic: ['0,25mg / 0,5mg (Caneta)', '1mg (Caneta)'],
+  levotiroxina: ['25mcg', '38mcg', '50mcg', '75mcg', '88mcg', '100mcg', '112mcg', '125mcg', '150mcg'],
+  puran: ['25mcg', '38mcg', '50mcg', '75mcg', '88mcg', '100mcg', '112mcg', '125mcg', '150mcg'],
+  omeprazol: ['10mg', '20mg', '40mg'],
+  pantoprazol: ['20mg', '40mg'],
+  esomeprazol: ['20mg', '40mg'],
+  domperidona: ['10mg', '1mg/ml (Suspensão)'],
+  ondansetrona: ['4mg', '8mg'],
+  simeticona: ['40mg', '125mg', '75mg/ml (Gotas)'],
+  loratadina: ['10mg', '1mg/ml (Xarope)'],
+  desloratadina: ['5mg', '0,5mg/ml (Xarope)'],
+  fexofenadina: ['60mg', '120mg', '180mg', '6mg/ml (Suspensão)'],
+  prednisona: ['5mg', '20mg'],
+  prednisolona: ['1mg/ml (Solução Oral)', '3mg/ml (Solução Oral)'],
+  dexametasona: ['0,5mg', '0,75mg', '4mg', '0,1mg/ml (Elixir)', '1mg/g (Creme)'],
+  clonazepam: ['0,5mg', '2mg', '2,5mg/ml (Gotas)'],
+  rivotril: ['0,5mg', '2mg', '2,5mg/ml (Gotas)'],
+  alprazolam: ['0,25mg', '0,5mg', '1mg', '2mg'],
+  diazepam: ['5mg', '10mg'],
+  zolpidem: ['5mg', '10mg', '6,25mg CR', '12,5mg CR'],
+  sertralina: ['25mg', '50mg', '100mg'],
+  fluoxetina: ['10mg', '20mg', '20mg/ml (Gotas)'],
+  escitalopram: ['10mg', '15mg', '20mg', '20mg/ml (Gotas)'],
+  venlafaxina: ['37,5mg', '75mg', '150mg'],
+  desvenlafaxina: ['50mg', '100mg'],
+  duloxetina: ['30mg', '60mg'],
+  bupropiona: ['150mg XL', '300mg XL'],
+  amitriptilina: ['25mg', '75mg'],
+  quetiapina: ['25mg', '50mg', '100mg', '200mg', '300mg'],
+  risperidona: ['1mg', '2mg', '3mg', '1mg/ml (Solução)'],
+  carbamazepina: ['200mg', '400mg', '20mg/ml (Suspensão)'],
+  pregabalina: ['25mg', '50mg', '75mg', '150mg'],
+  gabapentina: ['300mg', '400mg', '600mg'],
+  nimesulida: ['100mg', '50mg/ml (Gotas)'],
+  diclofenaco: ['50mg', '75mg', '100mg', '11,6mg/g (Gel)'],
+  cetoprofeno: ['50mg', '100mg', '150mg', '20mg/ml (Gotas)'],
+  meloxicam: ['7,5mg', '15mg'],
+  celecoxibe: ['100mg', '200mg'],
+  etoricoxibe: ['60mg', '90mg'],
+  acebrofilina: ['25mg/5ml (Xarope Infantil)', '50mg/5ml (Xarope Adulto)'],
+  ambroxol: ['15mg/5ml (Xarope Infantil)', '30mg/5ml (Xarope Adulto)'],
+  acetilcisteina: ['20mg/ml (Xarope)', '40mg/ml (Xarope)', '200mg (Granulado)', '600mg (Granulado)'],
+  tamarine: ['Geleia Oral 150g', 'Geleia Oral 250g', 'Cápsulas'],
+  nebacetin: ['Pomada 15g', 'Pomada 50g'],
+  bepantol: ['Pomada 30g', 'Pomada 60g', 'Solução 50ml'],
+  tadalafila: ['5mg', '20mg'],
+  sildenafila: ['25mg', '50mg', '100mg'],
+  colecalciferol: ['1.000 UI', '2.000 UI', '7.000 UI', '10.000 UI', '50.000 UI', 'Gotas']
+};
+
+window.buscarOpcoesMedicamento = function(texto, substanciaBase) {
+  var limpo = (texto || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').trim();
+  if (!limpo) return [];
+  for (var v in window.VARIACOES) {
+    if (limpo.indexOf(v) !== -1) return window.VARIACOES[v];
+  }
+  var padrao = ['10mg', '20mg', '25mg', '50mg', '100mg', '250mg', '500mg', '1g', 'Xarope', 'Gotas', 'Pomada', 'Geleia Oral'];
+  return padrao.map(function(d) {
+    return { label: d, sub: substanciaBase || '' };
+  });
 };
