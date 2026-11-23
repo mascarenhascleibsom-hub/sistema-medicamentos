@@ -106,7 +106,7 @@ function montarTela() {
   var hLeft = el('div');
   hLeft.appendChild(el('span', 'hero-tag', 'SISTEMA NEURAL FARMAGERCI • ANVISA SYNC'));
   hLeft.appendChild(el('h2', '', 'Central Inteligente de Falta A–Z'));
-  hLeft.appendChild(el('p', '', 'Identificação automática de Genéricos, Similares, Originais, Insulinas e Associações direto da base oficial da ANVISA.'));
+  hLeft.appendChild(el('p', '', 'Identificação automática de Genéricos, Similares, Originais, Insulinas e Associações direto da base oficial.'));
   hero.appendChild(hLeft);
   var hBtn = el('button', 'btn btn-w', '+ Novo Medicamento');
   hBtn.onclick = abrirModalNovo;
@@ -195,7 +195,7 @@ function montarTela() {
   iNome.autocomplete = 'off';
   iNome.required = true;
   iNome.placeholder = 'Digite qualquer medicamento de A a Z...';
-  iNome.oninput = reconhecer;
+  iNome.oninput = function() { reconhecer(false); };
   fg1.appendChild(iNome);
 
   var dl = el('datalist');
@@ -353,8 +353,13 @@ function preencherSetinha(semDose, substanciaBase, doseExtraida, textoCompleto) 
   }
 }
 
-function reconhecer() {
+function reconhecer(manterDoseAtual) {
   var txt = document.getElementById('nome').value;
+  var inpD = document.getElementById('dosagem');
+  if (!manterDoseAtual && inpD) {
+    inpD.value = '';
+  }
+
   var partes = txt.split(' ');
   var semDose = txt;
   var doseExtraida = '';
@@ -403,7 +408,7 @@ function reconhecer() {
           }
         }
 
-        if (d && d.principio) {
+        if (d && d.principio && (!achouLocal || norm(d.principio) !== norm(semDose))) {
           document.getElementById('principio').value = d.principio;
         }
         if (d && d.tipo) {
@@ -628,6 +633,7 @@ function abrirModalNovo() {
   document.getElementById('modal-titulo').textContent = 'Registrar Medicamento / Falta';
   document.getElementById('badge-tipo').textContent = '';
   document.getElementById('form').reset();
+  document.getElementById('dosagem').value = '';
   document.getElementById('dosagem').style.display = 'none';
   document.getElementById('dosagem_sel').innerHTML = '<option value="">▼ Selecione a mg ou apresentação...</option>';
   document.getElementById('unidade').value = 'FarmaGerci Matriz';
@@ -649,7 +655,7 @@ function editar(id) {
   document.getElementById('tipo_med').value = (partesUni.shift() || '').trim();
   document.getElementById('atual').value = m.estoque_atual;
   document.getElementById('minimo').value = m.estoque_minimo;
-  reconhecer();
+  reconhecer(true);
   document.getElementById('modal').classList.add('open');
 }
 
