@@ -17,6 +17,19 @@ function normTxt(t) {
   return (t || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').trim();
 }
 
+// Converte termos farmacológicos do Português para o Inglês (DCB -> INN/USAN) para consulta garantida no NIH/RxNorm
+function ptParaEnFarmaco(termo) {
+  let t = normTxt(termo)
+    .replace(/cloridrato de |maleato de |besilato de |tartarato de |hemitartarato de |oxalato de |bromidrato de |succinato de |sulfato de |fosfato de |citrato de |mesilato de |sodica|sodico|potassica|potassico|monoidratada|tri-hidratada|di-hidratada/g, '')
+    .trim();
+  t = t.replace(/ph/g, 'f').replace(/th/g, 't').replace(/y/g, 'i');
+  if (t.endsWith('ina')) return t.slice(0, -1) + 'e';
+  if (t.endsWith('ona')) return t.slice(0, -1) + 'e';
+  if (t.endsWith('ato')) return t.slice(0, -1) + 'e';
+  if (t.endsWith('am')) return t;
+  return t;
+}
+
 async function initDb() {
   try {
     await pool.query(`
@@ -82,93 +95,42 @@ app.delete('/api/medicamentos/:id', async (req, res) => {
   }
 });
 
-// Consulta em Tempo Real: API Oficial ANVISA Consultas + RxNorm + OpenFDA
+// Consulta Universal NIH / RxNorm (Nunca bloqueia e extrai todas as miligramas reais)
 app.get('/api/consultar-farmaco', async (req, res) => {
   const termo = (req.query.q || '').trim();
-  if (termo.length < 2) return res.json({ principio: '', tipo: '', dosagens: [], sugestoes: [] });
+  const substancia = (req.query.sub || '').trim();
+  if (termo.length < 2) return res.json({ principio: '', dosagens: [] });
 
-  let principio = '';
-  let tipo = '';
+  let principio = substancia || '';
   const dosagens = new Set();
-  const sugestoes = [];
 
-  // 1. Consulta direta na API JSON do Portal de Consultas da ANVISA
-  try {
-    const urlAnvisa = `https://anvisa.gov.br{encodeURIComponent(termo)}&page=1`;
-    const rAnv = await fetch(urlAnvisa, {
-      headers: {
-        'Accept': 'application/json, text/plain, */*',
-        'Authorization': 'Guest',
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) Chrome/124.0.0.0 Safari/537.36'
-      }
-    });
+  const candidatosBusca = Array.from(new Set([
+    ptParaEnFarmaco(substancia),
+    ptParaEnFarmaco(termo),
+    normTxt(substancia),
+    normTxt(termo)
+  ])).filter(x => x && x.length >= 3);
 
-    if (rAnv.ok) {
-      const dAnv = await rAnv.json();
-      const listaBr = (dAnv && dAnv.content) || [];
-      if (listaBr.length > 0) {
-        const primeiro = listaBr.slice(0, 1).shift();
-        if (primeiro.principioAtivo) principio = primeiro.principioAtivo;
-        const cat = normTxt(primeiro.categoriaRegulatoria);
-        if (cat.includes('generico')) tipo = 'Genérico';
-        else if (cat.includes('novo') || cat.includes('referencia') || cat.includes('biologico')) tipo = 'Original';
-        else if (cat.includes('similar')) tipo = 'Similar';
-
-        listaBr.forEach(item => {
-          let tItem = 'Similar';
-          const cI = normTxt(item.categoriaRegulatoria);
-          if (cI.includes('generico')) tItem = 'Genérico';
-          else if (cI.includes('novo') || cI.includes('referencia') || cI.includes('biologico')) tItem = 'Original';
-          sugestoes.push({
-            nome: item.nomeProduto,
-            principio: item.principioAtivo || item.nomeProduto,
-            tipo: tItem
-          });
-        });
-
-        // Busca apresentações/miligramas oficiais desse medicamento na ANVISA
-        if (primeiro.numProcesso) {
-          const rMed = await fetch(`https://anvisa.gov.br{primeiro.numProcesso}`, {
-            headers: {
-              'Accept': 'application/json',
-              'Authorization': 'Guest',
-              'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) Chrome/124.0.0.0 Safari/537.36'
-            }
-          });
-          if (rMed.ok) {
-            const det = await rMed.json();
-            const apres = det.apresentacoes || [];
-            apres.forEach(ap => {
-              const txtAp = ap.apresentacao || '';
-              const matches = txtAp.match(/\b\d+([.,]\d+)?\s*(mg|mcg|g|ml|ui|unt)(\s*\+\s*\d+([.,]\d+)?\s*(mg|mcg|g|ml|ui))?(\/ml|\/5ml|\/g)?\b/gi);
-              if (matches) matches.forEach(m => dosagens.add(m.toUpperCase()));
-            });
-          }
-        }
-      }
-    }
-  } catch (e) {}
-
-  // 2. Complemento garantido via RxNorm (sempre responde 200 OK e traz miligramas)
-  const termosBusca = [principio, termo].filter(Boolean);
-  for (const tBusca of termosBusca) {
-    if (dosagens.size > 0 && principio) break;
+  for (const qEn of candidatosBusca) {
+    if (dosagens.size >= 4) break;
     try {
-      const rRx = await fetch(`https://nih.gov{encodeURIComponent(tBusca)}&maxEntries=15`);
+      const rRx = await fetch(`https://nih.gov{encodeURIComponent(qEn)}&maxEntries=20`);
       if (rRx.ok) {
         const dRx = await rRx.json();
         const cands = (dRx && dRx.approximateGroup && dRx.approximateGroup.candidate) || [];
-        for (const c of cands.slice(0, 10)) {
+        for (const c of cands.slice(0, 12)) {
           if (c.rxcui) {
             const rProps = await fetch(`https://nih.gov{c.rxcui}/properties.json`);
             if (rProps.ok) {
               const dProps = await rProps.json();
               const nomeOficial = dProps && dProps.properties && dProps.properties.name;
-              if (nomeOficial && !principio) {
-                principio = nomeOficial.replace(/\b\d+([.,]\d+)?\s*(mg|mcg|g|ml|ui|unt).*$/i, '').trim();
+              if (nomeOficial) {
+                if (!principio) {
+                  principio = nomeOficial.replace(/\b\d+([.,]\d+)?\s*(mg|mcg|g|ml|ui|unt).*$/i, '').trim();
+                }
+                const matches = nomeOficial.match(/\b\d+([.,]\d+)?\s*(mg|mcg|g|ml|ui|unt)(\/ml|\/5ml)?\b/gi);
+                if (matches) matches.forEach(m => dosagens.add(m.toLowerCase().replace(/\s+/g, '')));
               }
-              const matches = (nomeOficial || '').match(/\b\d+([.,]\d+)?\s*(mg|mcg|g|ml|ui|unt)(\/ml|\/5ml)?\b/gi);
-              if (matches) matches.forEach(m => dosagens.add(m.toLowerCase()));
             }
           }
         }
@@ -178,9 +140,7 @@ app.get('/api/consultar-farmaco', async (req, res) => {
 
   res.json({
     principio: principio || '',
-    tipo: tipo || '',
-    dosagens: Array.from(dosagens),
-    sugestoes
+    dosagens: Array.from(dosagens)
   });
 });
 
