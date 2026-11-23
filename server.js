@@ -21,15 +21,18 @@ function normTxt(t) {
 }
 
 function colAt(arr, idx) {
-  return (arr[idx] || '').replace(/"/g, '').trim();
+  return (arr.slice(idx, idx + 1).shift() || '').replace(/"/g, '').trim();
 }
 
 function carregarCatalogoLocalAnvisa() {
-  const arq = path.join(__dirname, 'DADOS_ABERTOS_MEDICAMENTOS.csv');
-  if (!fs.existsSync(arq)) {
-    console.log('Arquivo DADOS_ABERTOS_MEDICAMENTOS.csv não encontrado na raiz.');
+  const arquivosCsv = fs.readdirSync(__dirname).filter(f => f.toLowerCase().endsWith('.csv'));
+  if (arquivosCsv.length === 0) {
+    console.log('Nenhum arquivo .csv encontrado na raiz.');
     return;
   }
+  const nomeArq = arquivosCsv.shift();
+  const arq = path.join(__dirname, nomeArq);
+  console.log('Lendo planilha oficial:', nomeArq);
 
   try {
     const buffer = fs.readFileSync(arq);
@@ -84,7 +87,7 @@ function carregarCatalogoLocalAnvisa() {
       }
 
       if (apres) {
-        const matches = apres.match(/\b\d+(\d+)?\s*(mg|mcg|g|ml|ui|unt)(\/[a-z0-9]+)?(\s*\+\s*\d+(\d+)?\s*(mg|mcg|g|ml|ui|unt)(\/[a-z0-9]+)?)?/gi);
+        const matches = apres.match(/\b\d+(?:\.\d+|\,\d+)?\s*(?:mg|mcg|g|ml|ui|unt)(?:\/[a-z0-9]+)?(?:\s*\+\s*\d+(?:\.\d+|\,\d+)?\s*(?:mg|mcg|g|ml|ui|unt)(?:\/[a-z0-9]+)?)?/gi);
         if (matches) {
           matches.forEach(m => mapa.get(chave).dosagens.add(m.toUpperCase()));
         } else {
@@ -146,7 +149,7 @@ app.post('/api/medicamentos', async (req, res) => {
       'INSERT INTO medicamentos (nome, principio_ativo, dosagem, unidade_saude, estoque_atual, estoque_minimo) VALUES ($1,$2,$3,$4,$5,$6) RETURNING *',
       [nome, principio_ativo || nome, dosagem || '', unidade_saude || 'FarmaGerci Matriz', Number(estoque_atual) || 0, Number(estoque_minimo) || 10]
     );
-    res.json(r.rows);
+    res.json(r.rows.shift());
   } catch (e) {
     res.status(500).json({ erro: e.message });
   }
@@ -159,7 +162,7 @@ app.patch('/api/medicamentos/:id/estoque', async (req, res) => {
       'UPDATE medicamentos SET estoque_atual = GREATEST(0, estoque_atual + $1) WHERE id = $2 RETURNING *',
       [Number(quantidade), req.params.id]
     );
-    res.json(r.rows);
+    res.json(r.rows.shift());
   } catch (e) {
     res.status(500).json({ erro: e.message });
   }
