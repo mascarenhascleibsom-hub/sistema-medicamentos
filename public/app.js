@@ -29,6 +29,39 @@ function detectarForma(texto) {
   return '';
 }
 
+function ehGenericoPorNome(limpo) {
+  var sais = [
+    'cloridrato de ', 'maleato de ', 'besilato de ', 'tartarato de ', 'hemitartarato de ',
+    'oxalato de ', 'bromidrato de ', 'succinato de ', 'sulfato de ', 'fosfato de ',
+    'citrato de ', 'mesilato de ', 'dipropionato de ', 'valerato de ', 'acetato de ',
+    'fumarato de ', 'nitrato de ', 'dicloridrato de ', 'bissulfato de ', 'tromesilato de ',
+    'monoidratad', 'tri-hidratad', 'di-hidratad', 'hemi-hidratad', 'sodica', 'sodico',
+    'potassica', 'potassico', 'calcica', 'calcico', 'magnesio', 'zincica'
+  ];
+  for (var i = 0; i < sais.length; i++) {
+    if (limpo.indexOf(sais[i]) !== -1) return true;
+  }
+
+  var palavras = limpo.split(' ');
+  var primeira = palavras.shift() || '';
+  var sufixosGenericos = [
+    'prazol', 'sartana', 'statina', 'olol', 'pril', 'dipino', 'micina', 'cilina',
+    'oxacino', 'conazol', 'clovir', 'zepam', 'zolam', 'zepina', 'oxetina', 'tralina',
+    'lafaxina', 'gliptina', 'flozina', 'glutida', 'triptana', 'tidina', 'filina',
+    'cisteina', 'cortisona', 'solona', 'metasona', 'budesonida', 'fluticasona',
+    'mometasona', 'tiazida', 'semida', 'lactona', 'xabana', 'grel', 'parina',
+    'profeno', 'coxibe', 'xicam', 'fenaco', 'dol', 'caina', 'paracetamol', 'dipirona',
+    'ibuprofeno', 'nimesulida', 'amoxicilina', 'azitromicina', 'cefalexina', 'losartana',
+    'enalapril', 'atenolol', 'sinvastatina', 'atorvastatina', 'rosuvastatina', 'metformina',
+    'omeprazol', 'pantoprazol', 'loratadina', 'prednisona', 'clonazepam', 'sertralina',
+    'fluoxetina', 'escitalopram', 'quetiapina', 'risperidona', 'pregabalina', 'levotiroxina'
+  ];
+  for (var j = 0; j < sufixosGenericos.length; j++) {
+    if (primeira.length >= 6 && primeira.endsWith(sufixosGenericos[j])) return true;
+  }
+  return false;
+}
+
 function classificarRemedio(texto) {
   var limpo = norm(texto);
   if (!limpo) return null;
@@ -36,10 +69,10 @@ function classificarRemedio(texto) {
 
   for (var idx = 0; idx < lista.length; idx++) {
     var itemSalvo = lista[idx];
-    if (norm(itemSalvo.nome) === limpo && itemSalvo.principio_ativo && norm(itemSalvo.principio_ativo) !== limpo) {
+    if (norm(itemSalvo.nome) === limpo && itemSalvo.principio_ativo) {
       var uS = norm(itemSalvo.unidade_saude);
       var tS = uS.indexOf('generico') !== -1 ? 'Genérico' : (uS.indexOf('original') !== -1 ? 'Original' : 'Similar');
-      return { principio: itemSalvo.principio_ativo, tipo: tS, forma: forma };
+      return { principio: itemSalvo.principio_ativo, tipo: tS, forma: forma, conhecido: true };
     }
   }
 
@@ -48,16 +81,30 @@ function classificarRemedio(texto) {
   var gen = window.GENERICOS || {};
 
   for (var o in orig) {
-    if (limpo.indexOf(o) !== -1) return { principio: orig[o], tipo: 'Original', forma: forma };
-  }
-  for (var s in sim) {
-    if (limpo.indexOf(s) !== -1) return { principio: sim[s], tipo: 'Similar', forma: forma };
+    if (limpo === o || limpo.indexOf(o + ' ') === 0) return { principio: orig[o], tipo: 'Original', forma: forma, conhecido: true };
   }
   for (var g in gen) {
-    if (limpo.indexOf(g) !== -1) return { principio: gen[g], tipo: 'Genérico', forma: forma };
+    if (limpo === g || limpo.indexOf(g + ' ') === 0 || limpo.indexOf(' ' + g) !== -1) return { principio: gen[g], tipo: 'Genérico', forma: forma, conhecido: true };
   }
+  for (var s in sim) {
+    if (limpo === s || limpo.indexOf(s + ' ') === 0) return { principio: sim[s], tipo: 'Similar', forma: forma, conhecido: true };
+  }
+
   var cap = texto.trim();
-  return { principio: cap.charAt(0).toUpperCase() + cap.slice(1), tipo: 'Similar', forma: forma };
+  var capFormatado = cap.charAt(0).toUpperCase() + cap.slice(1);
+  if (ehGenericoPorNome(limpo)) {
+    return { principio: capFormatado, tipo: 'Genérico', forma: forma, conhecido: true };
+  }
+
+  return { principio: capFormatado, tipo: 'Similar', forma: forma, conhecido: false };
+}
+
+function selecionarCategoria(cat) {
+  document.getElementById('tipo_med').value = cat;
+  document.getElementById('badge-tipo').textContent = '✓ ' + cat;
+  document.querySelectorAll('[data-cat]').forEach(function(btn) {
+    btn.classList.toggle('active', btn.getAttribute('data-cat') === cat);
+  });
 }
 
 function montarTela() {
@@ -104,9 +151,9 @@ function montarTela() {
 
   var hero = el('section', 'hero');
   var hLeft = el('div');
-  hLeft.appendChild(el('span', 'hero-tag', 'SISTEMA NEURAL FARMAGERCI • ANVISA SYNC'));
+  hLeft.appendChild(el('span', 'hero-tag', 'SISTEMA NEURAL FARMAGERCI • BRASIL A–Z'));
   hLeft.appendChild(el('h2', '', 'Central Inteligente de Falta A–Z'));
-  hLeft.appendChild(el('p', '', 'Identificação automática de Genéricos, Similares, Originais, Insulinas e Associações direto da base oficial.'));
+  hLeft.appendChild(el('p', '', 'Reconhecimento químico automático de Genéricos, Similares, Originais, Insulinas e Associações com seleção rápida de miligramas.'));
   hero.appendChild(hLeft);
   var hBtn = el('button', 'btn btn-w', '+ Novo Medicamento');
   hBtn.onclick = abrirModalNovo;
@@ -183,7 +230,7 @@ function montarTela() {
 
   var fg1 = el('div', 'fg');
   var lb1 = el('label');
-  lb1.appendChild(el('span', '', 'Medicamento (ex: Insulina NPH, Ciclo 21, Tylenol, Trazodona) *'));
+  lb1.appendChild(el('span', '', 'Medicamento (ex: Apresolina, Insulina NPH, Tylenol, Trazodona) *'));
   var bTipo = el('span', '', '');
   bTipo.id = 'badge-tipo';
   bTipo.style.color = '#facc15';
@@ -250,10 +297,26 @@ function montarTela() {
 
   var rowTipo = el('div', 'frow');
   var fgTipo = el('div', 'fg');
-  fgTipo.appendChild(el('label', '', 'Lista / Categoria'));
+  fgTipo.appendChild(el('label', '', 'Lista / Categoria (Clique para trocar)'));
+
+  var wrapTipo = el('div', '');
+  wrapTipo.style.cssText = 'display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px';
+
   var iTipo = el('input');
+  iTipo.type = 'hidden';
   iTipo.id = 'tipo_med';
-  fgTipo.appendChild(iTipo);
+  iTipo.value = 'Similar';
+  wrapTipo.appendChild(iTipo);
+
+  ['Original', 'Genérico', 'Similar'].forEach(function(cat) {
+    var bCat = el('button', 'pill', cat);
+    bCat.type = 'button';
+    bCat.setAttribute('data-cat', cat);
+    bCat.style.cssText = 'padding:10px 6px;font-size:12px;text-align:center;border-radius:12px';
+    bCat.onclick = function() { selecionarCategoria(cat); };
+    wrapTipo.appendChild(bCat);
+  });
+  fgTipo.appendChild(wrapTipo);
 
   var fg4 = el('div', 'fg');
   fg4.appendChild(el('label', '', 'Unidade / Filial'));
@@ -373,15 +436,17 @@ function reconhecer(manterDoseAtual) {
   }
 
   var res = classificarRemedio(semDose);
-  var achouLocal = res && norm(res.principio) !== norm(semDose);
+  var achouLocal = res && res.conhecido;
 
   if (res) {
     document.getElementById('principio').value = res.principio;
-    document.getElementById('tipo_med').value = res.tipo;
-    document.getElementById('badge-tipo').textContent = '✓ ' + res.tipo + (res.forma ? ' (' + res.forma + ')' : '');
+    selecionarCategoria(res.tipo);
+    if (res.forma) {
+      document.getElementById('badge-tipo').textContent = '✓ ' + res.tipo + ' (' + res.forma + ')';
+    }
   } else {
     document.getElementById('principio').value = '';
-    document.getElementById('tipo_med').value = '';
+    selecionarCategoria('Similar');
     document.getElementById('badge-tipo').textContent = '';
   }
 
@@ -400,9 +465,9 @@ function reconhecer(manterDoseAtual) {
 
         if (d && d.principio && !achouLocal) {
           document.getElementById('principio').value = d.principio;
-          document.getElementById('badge-tipo').textContent = '✓ ' + (res ? res.tipo : 'Similar');
+          document.getElementById('badge-tipo').textContent = '✓ ' + document.getElementById('tipo_med').value;
         } else if (!achouLocal) {
-          document.getElementById('badge-tipo').textContent = '✓ Similar';
+          document.getElementById('badge-tipo').textContent = '✓ ' + document.getElementById('tipo_med').value;
         }
 
         var sel = document.getElementById('dosagem_sel');
@@ -428,7 +493,6 @@ function reconhecer(manterDoseAtual) {
   }
 }
 
-
 function avisar(msg) {
   var t = document.getElementById('toast');
   t.textContent = msg;
@@ -443,13 +507,11 @@ function statusDe(x) {
 }
 
 function tipoDe(m) {
-  var auto = classificarRemedio(m.nome);
-  if (auto && (auto.tipo === 'Original' || auto.tipo === 'Genérico')) {
-    return auto.tipo;
-  }
   var uNorm = norm(m.unidade_saude);
   if (uNorm.indexOf('generico') !== -1) return 'Genérico';
   if (uNorm.indexOf('original') !== -1) return 'Original';
+  if (uNorm.indexOf('similar') !== -1) return 'Similar';
+  var auto = classificarRemedio(m.nome);
   return auto ? auto.tipo : 'Similar';
 }
 
@@ -622,6 +684,7 @@ function abrirModalNovo() {
   document.getElementById('dosagem').value = '';
   document.getElementById('dosagem').style.display = 'none';
   document.getElementById('dosagem_sel').innerHTML = '<option value="">▼ Selecione a mg ou apresentação...</option>';
+  selecionarCategoria('Similar');
   document.getElementById('unidade').value = 'FarmaGerci Matriz';
   document.getElementById('atual').value = 0;
   document.getElementById('minimo').value = 10;
@@ -638,10 +701,11 @@ function editar(id) {
   document.getElementById('dosagem').value = m.dosagem || '';
   var partesUni = (m.unidade_saude || 'FarmaGerci Matriz').split('•');
   document.getElementById('unidade').value = (partesUni.shift() || 'FarmaGerci Matriz').trim();
-  document.getElementById('tipo_med').value = (partesUni.shift() || '').trim();
+  var catSalva = (partesUni.shift() || '').trim() || tipoDe(m);
   document.getElementById('atual').value = m.estoque_atual;
   document.getElementById('minimo').value = m.estoque_minimo;
   reconhecer(true);
+  selecionarCategoria(catSalva);
   document.getElementById('modal').classList.add('open');
 }
 
