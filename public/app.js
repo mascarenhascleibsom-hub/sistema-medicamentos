@@ -134,24 +134,20 @@ function selecionarCategoria(cat) {
   });
 }
 
-function montarTela() {
-  var root = document.getElementById('app');
-  root.innerHTML = '';
-
-  var fotosCaixas = [
-    'https://unsplash.com',
-    'https://unsplash.com',
-    'https://unsplash.com',
-    'https://unsplash.com',
-    'https://unsplash.com'
+  var caixasFundo = [
+    "data:image/svg+xml;utf8,<svg xmlns='http://w3.org' width='900' height='600' viewBox='0 0 900 600'><g transform='rotate(-14 550 300)'><rect x='340' y='130' width='440' height='250' rx='22' fill='%23ffffff' stroke='%234c1d95' stroke-width='6'/><rect x='340' y='305' width='440' height='75' rx='8' fill='%23facc15'/><text x='375' y='190' font-family='Arial' font-size='22' font-weight='bold' fill='%236d28d9'>✚ FARMAGERCI • GENÉRICO</text><text x='375' y='245' font-family='Arial' font-size='38' font-weight='bold' fill='%231e1b4b'>Losartana 50mg</text><text x='375' y='282' font-family='Arial' font-size='20' fill='%23475569'>30 Comprimidos Revestidos</text><text x='375' y='353' font-family='Arial' font-size='34' font-weight='900' fill='%231e1b4b'>G • MEDICAMENTO GENÉRICO</text></g></svg>",
+    "data:image/svg+xml;utf8,<svg xmlns='http://w3.org' width='900' height='600' viewBox='0 0 900 600'><g transform='rotate(-12 550 300)'><rect x='340' y='130' width='440' height='250' rx='22' fill='%23ffffff' stroke='%234c1d95' stroke-width='6'/><rect x='340' y='305' width='440' height='75' rx='8' fill='%23dc2626'/><text x='375' y='190' font-family='Arial' font-size='22' font-weight='bold' fill='%236d28d9'>✚ REFERÊNCIA • ORIGINAL</text><text x='375' y='245' font-family='Arial' font-size='38' font-weight='bold' fill='%231e1b4b'>Apresolina 50mg</text><text x='375' y='282' font-family='Arial' font-size='20' fill='%23475569'>Cloridrato de Hidralazina</text><text x='375' y='353' font-family='Arial' font-size='28' font-weight='900' fill='%23ffffff'>VENDA SOB PRESCRIÇÃO MÉDICA</text></g></svg>",
+    "data:image/svg+xml;utf8,<svg xmlns='http://w3.org' width='900' height='600' viewBox='0 0 900 600'><g transform='rotate(-15 550 300)'><rect x='340' y='130' width='440' height='250' rx='22' fill='%23ffffff' stroke='%234c1d95' stroke-width='6'/><rect x='340' y='305' width='440' height='75' rx='8' fill='%237c3aed'/><text x='375' y='190' font-family='Arial' font-size='22' font-weight='bold' fill='%236d28d9'>✚ INJETÁVEL • DIABETES</text><text x='375' y='245' font-family='Arial' font-size='38' font-weight='bold' fill='%231e1b4b'>Insulina NPH 100UI</text><text x='375' y='282' font-family='Arial' font-size='20' fill='%23475569'>Suspensão Injetável • Frasco/Caneta</text><text x='375' y='353' font-family='Arial' font-size='28' font-weight='900' fill='%23ffffff'>FARMAGERCI • USO SUBCUTÂNEO</text></g></svg>",
+    "data:image/svg+xml;utf8,<svg xmlns='http://w3.org' width='900' height='600' viewBox='0 0 900 600'><g transform='rotate(-11 550 300)'><rect x='340' y='130' width='440' height='250' rx='22' fill='%23ffffff' stroke='%234c1d95' stroke-width='6'/><rect x='340' y='305' width='440' height='75' rx='8' fill='%23facc15'/><text x='375' y='190' font-family='Arial' font-size='22' font-weight='bold' fill='%236d28d9'>✚ ANTIBIÓTICO • GENÉRICO</text><text x='375' y='245' font-family='Arial' font-size='38' font-weight='bold' fill='%231e1b4b'>Amoxicilina 500mg</text><text x='375' y='282' font-family='Arial' font-size='20' fill='%23475569'>21 Cápsulas • Uso Oral</text><text x='375' y='353' font-family='Arial' font-size='34' font-weight='900' fill='%231e1b4b'>G • MEDICAMENTO GENÉRICO</text></g></svg>",
+    "data:image/svg+xml;utf8,<svg xmlns='http://w3.org' width='900' height='600' viewBox='0 0 900 600'><g transform='rotate(-13 550 300)'><rect x='340' y='130' width='440' height='250' rx='22' fill='%23ffffff' stroke='%234c1d95' stroke-width='6'/><rect x='340' y='305' width='440' height='75' rx='8' fill='%237c3aed'/><text x='375' y='190' font-family='Arial' font-size='22' font-weight='bold' fill='%236d28d9'>✚ SUPLEMENTO • VITAMINA D3</text><text x='375' y='245' font-family='Arial' font-size='38' font-weight='bold' fill='%231e1b4b'>Addera D3 7.000UI</text><text x='375' y='282' font-family='Arial' font-size='20' fill='%23475569'>Colecalciferol • 30 Comprimidos</text><text x='375' y='353' font-family='Arial' font-size='28' font-weight='900' fill='%23ffffff'>SIMILAR • LINHA SAÚDE</text></g></svg>"
   ];
   var idxAnterior = Number(localStorage.getItem('fg_bg_idx') || -1);
-  var novoIdx = (idxAnterior + 1 + Math.floor(Math.random() * (fotosCaixas.length - 1))) % fotosCaixas.length;
+  var novoIdx = (idxAnterior + 1) % caixasFundo.length;
   localStorage.setItem('fg_bg_idx', String(novoIdx));
 
   var bgDiv = el('div', '');
   bgDiv.id = 'bg-remedio';
-  bgDiv.style.backgroundImage = 'url("' + fotosCaixas[novoIdx] + '")';
+  bgDiv.style.cssText = 'position:fixed;inset:0;z-index:0;background-size:contain;background-position:right bottom;background-repeat:no-repeat;opacity:0.22;pointer-events:none;background-image:url("' + caixasFundo[novoIdx] + '")';
   root.appendChild(bgDiv);
 
   var toast = el('div', 'toast', 'Salvo!');
