@@ -134,24 +134,36 @@ function selecionarCategoria(cat) {
   });
 }
 
-function aplicarCaixaFundo(root) {
-  var fotosReais = new Array(
-    'https://wikimedia.org',
-    'https://wikimedia.org',
-    'https://wikimedia.org',
-    'https://wikimedia.org',
-    'https://wikimedia.org'
-  );
-
-  var idxAnterior = Number(localStorage.getItem('fg_bg_idx') || -1);
-  var novoIdx = (idxAnterior + 1) % fotosReais.length;
-  localStorage.setItem('fg_bg_idx', String(novoIdx));
-
+async function aplicarCaixaFundo(root) {
   var bgDiv = el('div', '');
   bgDiv.id = 'bg-remedio';
-  bgDiv.style.cssText = 'position:fixed;top:0;left:0;width:100vw;height:100vh;z-index:0;background-size:cover;background-position:center center;background-repeat:no-repeat;opacity:0.32;filter:saturate(1.2) contrast(1.06);pointer-events:none;transition:opacity 0.6s ease;background-image:url("' + fotosReais[novoIdx] + '")';
-
+  bgDiv.style.cssText = 'position:fixed;top:0;left:0;width:100vw;height:100vh;z-index:0;background-size:cover;background-position:center center;background-repeat:no-repeat;opacity:0.28;filter:saturate(1.15);pointer-events:none;transition:opacity 0.6s ease;';
   root.appendChild(bgDiv);
+
+  var termos = new Array('medication box', 'pharmaceutical packaging', 'medicine blister pack', 'pills bottle pharmacy', 'insulin pen box');
+  var idxAnterior = Number(localStorage.getItem('fg_bg_idx') || -1);
+  var novoIdx = (idxAnterior + 1) % termos.length;
+  localStorage.setItem('fg_bg_idx', String(novoIdx));
+
+  try {
+    var api = 'https://wikimedia.org' + encodeURIComponent(termos[novoIdx]) + '&gsrnamespace=6&gsrlimit=6&prop=imageinfo&iiprop=url&iiurlwidth=1280&format=json&origin=*';
+    var resp = await fetch(api);
+    var dados = await resp.json();
+    var pages = dados && dados.query && dados.query.pages ? Object.values(dados.query.pages) : new Array();
+    var validas = pages.filter(function(p) {
+      var u = p.imageinfo && p.imageinfo.shift().thumburl;
+      return u && (u.toLowerCase().indexOf('.jpg') !== -1 || u.toLowerCase().indexOf('.png') !== -1);
+    });
+    if (validas.length > 0) {
+      var escolhida = validas[Math.floor(Math.random() * validas.length)];
+      var r2 = await fetch('https://wikimedia.org' + escolhida.pageid + '&prop=imageinfo&iiprop=url&iiurlwidth=1280&format=json&origin=*');
+      var d2 = await r2.json();
+      var info = d2.query.pages[escolhida.pageid].imageinfo.shift();
+      if (info && info.thumburl) {
+        bgDiv.style.backgroundImage = 'url("' + info.thumburl + '")';
+      }
+    }
+  } catch (e) {}
 }
 
 function montarTela() {
