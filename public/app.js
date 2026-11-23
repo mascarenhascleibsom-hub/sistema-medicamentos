@@ -99,6 +99,33 @@ function classificarRemedio(texto) {
   return { principio: capFormatado, tipo: 'Similar', forma: forma, conhecido: false };
 }
 
+function soltarEmojisFarmacia(texto) {
+  var l = norm(texto || '');
+  var listaEmojis = ['💊', '💊', '🩺'];
+
+  if (l.indexOf('insulina') !== -1 || l.indexOf('lantus') !== -1 || l.indexOf('novorapid') !== -1 || l.indexOf('humalog') !== -1 || l.indexOf('tresiba') !== -1 || l.indexOf('toujeo') !== -1 || l.indexOf('injetavel') !== -1 || l.indexOf('caneta') !== -1) {
+    listaEmojis = ['💉', '💉', '🩺'];
+  } else if (l.indexOf('xarope') !== -1 || l.indexOf('gotas') !== -1 || l.indexOf('suspensao') !== -1 || l.indexOf('ml') !== -1 || l.indexOf('pomada') !== -1 || l.indexOf('creme') !== -1 || l.indexOf('geleia') !== -1 || l.indexOf('colirio') !== -1 || l.indexOf('spray') !== -1) {
+    listaEmojis = ['🧴', '💧', '🧪'];
+  } else if (l === 'boas-vindas') {
+    listaEmojis = ['💊', '💉', '🧴', '🩺'];
+  }
+
+  for (var i = 0; i < 14; i++) {
+    (function(idx) {
+      setTimeout(function() {
+        var span = document.createElement('span');
+        span.className = 'emoji-float';
+        span.textContent = listaEmojis[idx % listaEmojis.length];
+        span.style.left = (6 + Math.random() * 88) + 'vw';
+        span.style.fontSize = (28 + Math.floor(Math.random() * 18)) + 'px';
+        document.body.appendChild(span);
+        setTimeout(function() { span.remove(); }, 2500);
+      }, idx * 95);
+    })(i);
+  }
+}
+
 function selecionarCategoria(cat) {
   document.getElementById('tipo_med').value = cat;
   document.getElementById('badge-tipo').textContent = '✓ ' + cat;
@@ -151,9 +178,9 @@ function montarTela() {
 
   var hero = el('section', 'hero');
   var hLeft = el('div');
-  hLeft.appendChild(el('span', 'hero-tag', 'SISTEMA NEURAL FARMAGERCI • BRASIL A–Z'));
-  hLeft.appendChild(el('h2', '', 'Central Inteligente de Falta A–Z'));
-  hLeft.appendChild(el('p', '', 'Reconhecimento químico automático de Genéricos, Similares, Originais, Insulinas e Associações com seleção rápida de miligramas.'));
+  hLeft.appendChild(el('span', 'hero-tag', 'DROGARIA DIGITAL FARMAGERCI • BRASIL A–Z'));
+  hLeft.appendChild(el('h2', '', 'Vitrine de Falta & Reposição'));
+  hLeft.appendChild(el('p', '', 'Reconhecimento automático de Genéricos, Similares, Originais, Insulinas e Associações com seleção rápida de miligramas.'));
   hero.appendChild(hLeft);
   var hBtn = el('button', 'btn btn-w', '+ Novo Medicamento');
   hBtn.onclick = abrirModalNovo;
@@ -162,10 +189,10 @@ function montarTela() {
 
   var metrics = el('section', 'metrics');
   [
-    { k: 'TODOS', t: 'Total Cadastrado', id: 'm-total', c: '#e9d5ff' },
-    { k: 'FALTA', t: 'Em Falta (Zero)', id: 'm-falta', c: '#fda4af' },
-    { k: 'CRITICO', t: 'Estoque Baixo', id: 'm-critico', c: '#fde047' },
-    { k: 'NORMAL', t: 'Disponíveis', id: 'm-normal', c: '#6ee7b7' }
+    { k: 'TODOS', t: 'Total Cadastrado', id: 'm-total', c: '#581c87' },
+    { k: 'FALTA', t: 'Em Falta (Zero)', id: 'm-falta', c: '#e11d48' },
+    { k: 'CRITICO', t: 'Estoque Baixo', id: 'm-critico', c: '#d97706' },
+    { k: 'NORMAL', t: 'Disponíveis', id: 'm-normal', c: '#059669' }
   ].forEach(function(d) {
     var mc = el('button', 'mcard' + (d.k === 'TODOS' ? ' active' : ''));
     mc.setAttribute('data-filtro', d.k);
@@ -233,7 +260,7 @@ function montarTela() {
   lb1.appendChild(el('span', '', 'Medicamento (ex: Apresolina, Insulina NPH, Tylenol, Trazodona) *'));
   var bTipo = el('span', '', '');
   bTipo.id = 'badge-tipo';
-  bTipo.style.color = '#facc15';
+  bTipo.style.color = '#7e22ce';
   lb1.appendChild(bTipo);
   fg1.appendChild(lb1);
 
@@ -583,7 +610,7 @@ function renderizar() {
     var pct = Math.min(100, Math.round((atual / (min * 2)) * 100));
     var bCls = st === 'FALTA' ? 'bf' : (st === 'CRITICO' ? 'bc' : 'bn');
     var bTxt = st === 'FALTA' ? 'Em Falta' : (st === 'CRITICO' ? 'Estoque Baixo' : 'Disponível');
-    var cor = st === 'FALTA' ? '#fda4af' : (st === 'CRITICO' ? '#fde047' : '#6ee7b7');
+    var cor = st === 'FALTA' ? '#e11d48' : (st === 'CRITICO' ? '#d97706' : '#7e22ce');
 
     var card = el('div', 'card');
     var ctop = el('div', 'ctop');
@@ -741,6 +768,7 @@ async function salvarFormulario(e) {
   });
   fecharModal();
   avisar('Salvo na FarmaGerci!');
+  soltarEmojisFarmacia(nomeLimpo + ' ' + doseLimpa + ' ' + subst);
   carregar();
 }
 
@@ -756,3 +784,4 @@ function copiarPedido() {
 
 montarTela();
 carregar();
+soltarEmojisFarmacia('boas-vindas');
