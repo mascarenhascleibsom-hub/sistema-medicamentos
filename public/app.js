@@ -438,41 +438,6 @@ function reconhecer() {
   }
 }
 
-
-        if (d && d.principio && !achouLocal) {
-          document.getElementById('principio').value = d.principio;
-        }
-        if (d && d.tipo && !achouLocal) {
-          document.getElementById('tipo_med').value = d.tipo;
-          document.getElementById('badge-tipo').textContent = '✓ ' + d.tipo + ' (ANVISA)';
-        } else if (!achouLocal) {
-          document.getElementById('badge-tipo').textContent = '✓ Similar';
-        }
-
-        if (d && d.dosagens && d.dosagens.length > 0) {
-          var sel = document.getElementById('dosagem_sel');
-          if (!sel.value) {
-            sel.innerHTML = '<option value="">▼ Escolha a mg oficial (' + d.dosagens.length + ')...</option>';
-            d.dosagens.forEach(function(dose) {
-              var o = el('option', '', dose);
-              o.value = dose;
-              if (doseExtraida && dose.toLowerCase().indexOf(doseExtraida.toLowerCase()) !== -1) {
-                o.selected = true;
-                document.getElementById('dosagem').value = dose;
-              }
-              sel.appendChild(o);
-            });
-            var optO = el('option', '', '✎ Digitar outra apresentação...');
-            optO.value = 'OUTRA';
-            sel.appendChild(optO);
-            document.getElementById('dosagem').style.display = 'none';
-          }
-        }
-      } catch (e) {}
-    }, 350);
-  }
-}
-
 function avisar(msg) {
   var t = document.getElementById('toast');
   t.textContent = msg;
