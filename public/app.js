@@ -134,20 +134,21 @@ function selecionarCategoria(cat) {
   });
 }
 
-function montarTela() {
-  var root = document.getElementById('app');
-  root.innerHTML = '';
+  var fotosCaixas = [
+    'https://unsplash.com',
+    'https://unsplash.com',
+    'https://unsplash.com',
+    'https://unsplash.com',
+    'https://unsplash.com'
+  ];
+  var idxAnterior = Number(localStorage.getItem('fg_bg_idx') || -1);
+  var novoIdx = (idxAnterior + 1 + Math.floor(Math.random() * (fotosCaixas.length - 1))) % fotosCaixas.length;
+  localStorage.setItem('fg_bg_idx', String(novoIdx));
 
-  var toast = el('div', 'toast', 'Salvo!');
-  toast.id = 'toast';
-  root.appendChild(toast);
-
-  var top = el('div', 'top');
-  top.appendChild(el('span', '', 'Controle de Falta & Reposição • FarmaGerci'));
-  var stDb = el('span', '', '● Conectando...');
-  stDb.id = 'status-db';
-  top.appendChild(stDb);
-  root.appendChild(top);
+  var bgDiv = el('div', '');
+  bgDiv.id = 'bg-remedio';
+  bgDiv.style.backgroundImage = 'url("' + fotosCaixas[novoIdx] + '")';
+  root.appendChild(bgDiv);
 
   var hdr = el('header', 'hdr');
   var hdrIn = el('div', 'hdr-in');
