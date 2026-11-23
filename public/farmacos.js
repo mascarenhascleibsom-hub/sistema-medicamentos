@@ -422,8 +422,12 @@ window.buscarOpcoesMedicamento = function(texto, substanciaBase) {
   for (var v in window.VARIACOES) {
     if (limpo.indexOf(v) !== -1) return window.VARIACOES[v];
   }
-  var padrao = ['10mg', '20mg', '25mg', '50mg', '100mg', '250mg', '500mg', '1g', 'Xarope', 'Gotas', 'Pomada', 'Geleia Oral'];
-  return padrao.map(function(d) {
-    return { label: d, sub: substanciaBase || '' };
-  });
+  for (var k in window.DOSAGENS_SIMPLES) {
+    if (limpo.indexOf(k) !== -1) {
+      return window.DOSAGENS_SIMPLES[k].map(function(d) {
+        return { label: d, sub: substanciaBase || '' };
+      });
+    }
+  }
+  return [];
 };
