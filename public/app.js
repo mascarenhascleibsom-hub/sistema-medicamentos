@@ -386,9 +386,7 @@ function reconhecer() {
     clearTimeout(timerOnline);
     timerOnline = setTimeout(async function() {
       try {
-        if (!achouLocal) {
-          document.getElementById('badge-tipo').textContent = '⏳ Buscando na ANVISA...';
-        }
+        document.getElementById('badge-tipo').textContent = '⏳ Buscando na ANVISA...';
         var r = await fetch('/api/consultar-farmaco?q=' + encodeURIComponent(semDose));
         var d = await r.json();
 
@@ -404,6 +402,42 @@ function reconhecer() {
             });
           }
         }
+
+        if (d && d.principio) {
+          document.getElementById('principio').value = d.principio;
+        }
+        if (d && d.tipo) {
+          document.getElementById('tipo_med').value = d.tipo;
+          document.getElementById('badge-tipo').textContent = '✓ ' + d.tipo + ' (ANVISA)';
+        } else if (achouLocal) {
+          document.getElementById('badge-tipo').textContent = '✓ ' + res.tipo;
+        } else {
+          document.getElementById('badge-tipo').textContent = '✓ Similar';
+        }
+
+        var sel = document.getElementById('dosagem_sel');
+        var temOpcoesLocais = typeof window.buscarOpcoesMedicamento === 'function' && window.buscarOpcoesMedicamento(semDose, '').length > 0;
+        if (!temOpcoesLocais && d && d.dosagens && d.dosagens.length > 0) {
+          sel.innerHTML = '<option value="">▼ Clique e escolha a mg (' + d.dosagens.length + ')...</option>';
+          d.dosagens.forEach(function(dose) {
+            var o = el('option', '', dose);
+            o.value = dose;
+            if (doseExtraida && dose.toLowerCase().indexOf(doseExtraida.toLowerCase()) !== -1) {
+              o.selected = true;
+              document.getElementById('dosagem').value = dose;
+            }
+            sel.appendChild(o);
+          });
+          var optO = el('option', '', '✎ Digitar outra apresentação...');
+          optO.value = 'OUTRA';
+          sel.appendChild(optO);
+          document.getElementById('dosagem').style.display = 'none';
+        }
+      } catch (e) {}
+    }, 350);
+  }
+}
+
 
         if (d && d.principio && !achouLocal) {
           document.getElementById('principio').value = d.principio;
