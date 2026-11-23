@@ -30,6 +30,7 @@ function carregarCatalogoLocalAnvisa() {
     console.log('Arquivo DADOS_ABERTOS_MEDICAMENTOS.csv não encontrado na raiz.');
     return;
   }
+
   try {
     const buffer = fs.readFileSync(arq);
     const textoUtf = new TextDecoder('utf-8').decode(buffer);
