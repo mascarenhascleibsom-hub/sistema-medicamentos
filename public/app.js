@@ -1,5 +1,6 @@
 var lista = new Array();
 var filtroAtivo = 'TODOS';
+var timerOnline = null;
 
 function el(tag, cls, txt) {
   var e = document.createElement(tag);
@@ -14,10 +15,12 @@ function norm(t) {
 
 function detectarForma(texto) {
   var l = norm(texto);
+  if (l.indexOf('geleia') !== -1 || l.indexOf('gel oral') !== -1) return 'Geleia Oral';
+  if (l.indexOf('pomada') !== -1 || l.indexOf('creme') !== -1 || l.indexOf('gel') !== -1 || l.indexOf('unguento') !== -1) return 'Pomada/Creme';
   if (l.indexOf('xarope') !== -1 || l.indexOf('xpe') !== -1) return 'Xarope';
   if (l.indexOf('gotas') !== -1 || l.indexOf('gts') !== -1) return 'Gotas';
   if (l.indexOf('suspensao') !== -1 || l.indexOf('susp') !== -1) return 'Suspensão Oral';
-  if (l.indexOf('pomada') !== -1 || l.indexOf('creme') !== -1 || l.indexOf('gel') !== -1) return 'Pomada/Creme';
+  if (l.indexOf('colirio') !== -1 || l.indexOf('oftalmico') !== -1) return 'Colírio';
   if (l.indexOf('spray') !== -1 || l.indexOf('nasal') !== -1) return 'Spray';
   if (l.indexOf('injetavel') !== -1 || l.indexOf('ampola') !== -1) return 'Injetável';
   if (l.indexOf('capsula') !== -1 || l.indexOf('caps') !== -1) return 'Cápsula';
@@ -55,6 +58,7 @@ function classificarRemedio(texto) {
   var cap = texto.trim();
   return { principio: cap.charAt(0).toUpperCase() + cap.slice(1), tipo: 'Similar', forma: forma };
 }
+
 function montarTela() {
   var root = document.getElementById('app');
   root.innerHTML = '';
@@ -166,7 +170,7 @@ function montarTela() {
 
   var fg1 = el('div', 'fg');
   var lb1 = el('label');
-  lb1.appendChild(el('span', '', 'Medicamento (ex: Trazodona 50mg, Trimebutina) *'));
+  lb1.appendChild(el('span', '', 'Medicamento (ex: Tylenol, Buscopan, Trazodona) *'));
   var bTipo = el('span', '', '');
   bTipo.id = 'badge-tipo';
   bTipo.style.color = '#6d28d9';
@@ -177,7 +181,7 @@ function montarTela() {
   iNome.id = 'nome';
   iNome.autocomplete = 'off';
   iNome.required = true;
-  iNome.placeholder = 'Nome, forma (xarope, gotas) e dosagem opcional...';
+  iNome.placeholder = 'Digite o nome e escolha a miligrama/variação na seta...';
   iNome.oninput = reconhecer;
   fg1.appendChild(iNome);
   form.appendChild(fg1);
@@ -190,9 +194,36 @@ function montarTela() {
   fg2.appendChild(iPrinc);
 
   var fg3 = el('div', 'fg');
-  fg3.appendChild(el('label', '', 'Dosagem / Forma (Opcional)'));
+  fg3.appendChild(el('label', '', 'Miligrama / Associação (Clique na seta)'));
+  var selDose = el('select');
+  selDose.id = 'dosagem_sel';
+  selDose.style.cssText = 'width:100%;padding:10px 13px;border-radius:11px;border:1px solid #cbd5e1;font-size:14px;background:#fff;outline:none';
+  selDose.onchange = function() {
+    var inpD = document.getElementById('dosagem');
+    var optSel = this.options[this.selectedIndex];
+    if (this.value === 'OUTRA') {
+      inpD.style.display = 'block';
+      inpD.value = '';
+      inpD.focus();
+    } else {
+      inpD.style.display = 'none';
+      inpD.value = this.value;
+      if (optSel && optSel.getAttribute('data-sub')) {
+        document.getElementById('principio').value = optSel.getAttribute('data-sub');
+      }
+    }
+  };
+  var opt0 = el('option', '', 'Digite o remédio primeiro...');
+  opt0.value = '';
+  selDose.appendChild(opt0);
+
   var iDose = el('input');
   iDose.id = 'dosagem';
+  iDose.placeholder = 'Digite a mg ou apresentação...';
+  iDose.style.display = 'none';
+  iDose.style.marginTop = '6px';
+
+  fg3.appendChild(selDose);
   fg3.appendChild(iDose);
   row1.appendChild(fg2);
   row1.appendChild(fg3);
@@ -251,6 +282,7 @@ function montarTela() {
   mBg.appendChild(modal);
   root.appendChild(mBg);
 }
+
 function reconhecer() {
   var txt = document.getElementById('nome').value;
   var partes = txt.split(' ');
@@ -269,13 +301,58 @@ function reconhecer() {
   if (res) {
     document.getElementById('principio').value = res.principio;
     document.getElementById('tipo_med').value = res.tipo;
-    document.getElementById('dosagem').value = [doseExtraida, res.forma].filter(Boolean).join(' • ');
     document.getElementById('badge-tipo').textContent = '✓ ' + res.tipo + (res.forma ? ' (' + res.forma + ')' : '');
+
+    if (norm(res.principio) === norm(semDose) && semDose.length >= 4) {
+      clearTimeout(timerOnline);
+      timerOnline = setTimeout(async function() {
+        try {
+          var r = await fetch('https://nih.gov' + encodeURIComponent(semDose) + '&maxEntries=1');
+          var d = await r.json();
+          var cands = d && d.approximateGroup && d.approximateGroup.candidate;
+          var primeiro = cands && cands.shift();
+          if (primeiro && primeiro.name) {
+            document.getElementById('principio').value = primeiro.name;
+          }
+        } catch (e) {}
+      }, 500);
+    }
   } else {
     document.getElementById('principio').value = '';
     document.getElementById('tipo_med').value = '';
-    document.getElementById('dosagem').value = doseExtraida;
     document.getElementById('badge-tipo').textContent = '';
+  }
+
+  var sel = document.getElementById('dosagem_sel');
+  if (sel && typeof window.buscarOpcoesMedicamento === 'function') {
+    var opcoes = window.buscarOpcoesMedicamento(semDose, res ? res.principio : '');
+    var valorAtual = document.getElementById('dosagem').value;
+    sel.innerHTML = '';
+
+    var optPadrao = el('option', '', '▼ Clique e escolha a mg ou associação...');
+    optPadrao.value = '';
+    sel.appendChild(optPadrao);
+
+    opcoes.forEach(function(item) {
+      var o = el('option', '', item.label);
+      o.value = item.label;
+      if (item.sub) o.setAttribute('data-sub', item.sub);
+
+      if ((doseExtraida && item.label.toLowerCase().indexOf(doseExtraida.toLowerCase()) !== -1) ||
+          (txt.toLowerCase().indexOf(' dc') !== -1 && item.label.indexOf('DC') !== -1) ||
+          (txt.toLowerCase().indexOf('sinus') !== -1 && item.label.indexOf('Sinus') !== -1) ||
+          (txt.toLowerCase().indexOf('composto') !== -1 && item.label.indexOf('Composto') !== -1) ||
+          valorAtual === item.label) {
+        o.selected = true;
+        document.getElementById('dosagem').value = item.label;
+        if (item.sub) document.getElementById('principio').value = item.sub;
+      }
+      sel.appendChild(o);
+    });
+
+    var optOutra = el('option', '', '✎ Digitar outra apresentação...');
+    optOutra.value = 'OUTRA';
+    sel.appendChild(optOutra);
   }
 }
 
@@ -348,6 +425,7 @@ function obterFiltrados() {
     return true;
   });
 }
+
 function renderizar() {
   var filtrados = obterFiltrados();
   var box = document.getElementById('vitrine');
@@ -456,6 +534,8 @@ function abrirModalNovo() {
   document.getElementById('modal-titulo').textContent = 'Registrar Medicamento / Falta';
   document.getElementById('badge-tipo').textContent = '';
   document.getElementById('form').reset();
+  document.getElementById('dosagem').style.display = 'none';
+  document.getElementById('dosagem_sel').innerHTML = '<option value="">Digite o remédio primeiro...</option>';
   document.getElementById('unidade').value = 'FarmaGerci Matriz';
   document.getElementById('atual').value = 0;
   document.getElementById('minimo').value = 10;
@@ -470,6 +550,7 @@ function editar(id) {
   document.getElementById('nome').value = m.nome;
   document.getElementById('principio').value = m.principio_ativo || '';
   document.getElementById('dosagem').value = m.dosagem || '';
+  document.getElementById('dosagem').style.display = m.dosagem ? 'block' : 'none';
   var partesUni = (m.unidade_saude || 'FarmaGerci Matriz').split('•');
   document.getElementById('unidade').value = (partesUni.shift() || 'FarmaGerci Matriz').trim();
   document.getElementById('tipo_med').value = (partesUni.shift() || '').trim();
