@@ -13,6 +13,57 @@ const pool = new Pool({
     : false
 });
 
+// Base em memória com todos os medicamentos oficiais da ANVISA (A-Z)
+let baseAnvisa = [];
+
+function normTxt(t) {
+  return (t || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').trim();
+}
+
+async function carregarBaseAnvisa() {
+  try {
+    console.log('Sincronizando catálogo completo da ANVISA...');
+    const url = 'https://anvisa.gov.br';
+    const resp = await fetch(url);
+    if (!resp.ok) throw new Error('HTTP ' + resp.status);
+    const buffer = await resp.arrayBuffer();
+    const texto = new TextDecoder('latin1').decode(buffer);
+    const linhas = texto.split(/\r?\n/);
+
+    const mapa = new Map();
+    for (let i = 1; i < linhas.length; i++) {
+      const cols = linhas[i].split(';');
+      if (cols.length < 11) continue;
+      const nomeProd = (cols[1] || '').replace(/"/g, '').trim();
+      const catReg = (cols[5] || '').replace(/"/g, '').trim();
+      const situacao = (cols[9] || '').replace(/"/g, '').trim().toUpperCase();
+      const principio = (cols[10] || '').replace(/"/g, '').trim();
+
+      if (!nomeProd || situacao !== 'ATIVO') continue;
+
+      let tipo = 'Similar';
+      const cNorm = normTxt(catReg);
+      if (cNorm.includes('generico')) tipo = 'Genérico';
+      else if (cNorm.includes('novo') || cNorm.includes('referencia') || cNorm.includes('biologico') || cNorm.includes('especifico')) tipo = 'Original';
+
+      const chave = normTxt(nomeProd);
+      if (!mapa.has(chave)) {
+        mapa.set(chave, {
+          nome: nomeProd,
+          nomeNorm: chave,
+          principio: principio || nomeProd,
+          principioNorm: normTxt(principio),
+          tipo
+        });
+      }
+    }
+    baseAnvisa = Array.from(mapa.values());
+    console.log('Catálogo ANVISA carregado: ' + baseAnvisa.length + ' medicamentos ativos!');
+  } catch (e) {
+    console.error('Aviso ao baixar CSV ANVISA:', e.message);
+  }
+}
+
 async function initDb() {
   try {
     await pool.query(`
@@ -33,6 +84,7 @@ async function initDb() {
   }
 }
 initDb();
+carregarBaseAnvisa();
 
 app.get('/api/medicamentos', async (req, res) => {
   try {
@@ -78,41 +130,52 @@ app.delete('/api/medicamentos/:id', async (req, res) => {
   }
 });
 
-// Consulta Universal: Base Brasileira (Bulario/ANVISA) + Base Farmacológica Internacional
+// Consulta Universal nos +25.000 medicamentos ativos da ANVISA + Bulário + RxNorm
 app.get('/api/consultar-farmaco', async (req, res) => {
-  const termo = (req.query.q || '').trim();
-  if (termo.length < 2) return res.json({ principio: '', tipo: '', dosagens: [] });
+  const termo = normTxt(req.query.q || '');
+  if (termo.length < 2) return res.json({ principio: '', tipo: '', dosagens: [], sugestoes: [] });
 
   let principio = '';
   let tipo = '';
   const dosagens = new Set();
+  const sugestoes = [];
 
-  // 1. Consulta Base Oficial Brasileira (Bulario Eletrônico / ANVISA)
+  // 1. Busca instantânea no catálogo oficial completo da ANVISA carregado em memória
+  if (baseAnvisa.length > 0) {
+    const exato = baseAnvisa.find(m => m.nomeNorm === termo);
+    const parecidos = baseAnvisa.filter(m => m.nomeNorm.startsWith(termo) || m.principioNorm.startsWith(termo)).slice(0, 15);
+    const escolhido = exato || parecidos[0];
+
+    if (escolhido) {
+      principio = escolhido.principio;
+      tipo = escolhido.tipo;
+    }
+    parecidos.forEach(p => {
+      sugestoes.push({ nome: p.nome, principio: p.principio, tipo: p.tipo });
+    });
+  }
+
+  // 2. Busca miligramas e apresentações no Bulário Eletrônico
   try {
     const rBr = await fetch(`https://vercel.app{encodeURIComponent(termo)}&pagina=1`);
     if (rBr.ok) {
       const dBr = await rBr.json();
       const itens = (dBr && dBr.content) || [];
       if (itens.length > 0) {
-        const primeiro = itens;
-        if (primeiro.principioAtivo) {
-          principio = primeiro.principioAtivo;
+        const primeiro = itens[0];
+        if (!principio && primeiro.principioAtivo) principio = primeiro.principioAtivo;
+        if (!tipo) {
+          const cat = normTxt(primeiro.categoriaRegulatoria);
+          if (cat.includes('generico')) tipo = 'Genérico';
+          else if (cat.includes('novo') || cat.includes('referencia') || cat.includes('biologico')) tipo = 'Original';
+          else if (cat.includes('similar')) tipo = 'Similar';
         }
-        const cat = (primeiro.categoriaRegulatoria || '').toLowerCase();
-        if (cat.includes('generico') || cat.includes('genérico')) tipo = 'Genérico';
-        else if (cat.includes('novo') || cat.includes('referencia') || cat.includes('referência') || cat.includes('biologico')) tipo = 'Original';
-        else if (cat.includes('similar')) tipo = 'Similar';
-
-        // Busca detalhes do registro para extrair todas as miligramas/apresentações cadastradas na ANVISA
         if (primeiro.numProcesso) {
           const rDet = await fetch(`https://vercel.app{primeiro.numProcesso}`);
           if (rDet.ok) {
             const det = await rDet.json();
-            if (det.principioAtivo && !principio) principio = det.principioAtivo;
-            const apres = det.apresentacoes || [];
-            apres.forEach(ap => {
-              const txtAp = ap.apresentacao || '';
-              const m = txtAp.match(/\b\d+([.,]\d+)?\s*(mg|mcg|g|ml|ui|unt)(\s*\+\s*\d+([.,]\d+)?\s*(mg|mcg|g|ml|ui))?(\/ml|\/5ml|\/g)?\b/gi);
+            (det.apresentacoes || []).forEach(ap => {
+              const m = (ap.apresentacao || '').match(/\b\d+([.,]\d+)?\s*(mg|mcg|g|ml|ui|unt)(\s*\+\s*\d+([.,]\d+)?\s*(mg|mcg|g|ml|ui))?(\/ml|\/5ml|\/g)?\b/gi);
               if (m) m.forEach(x => dosagens.add(x.toUpperCase()));
             });
           }
@@ -121,29 +184,11 @@ app.get('/api/consultar-farmaco', async (req, res) => {
     }
   } catch (e) {}
 
-  // 2. Complemento Internacional (RxNorm) caso não retorne nada da base BR
-  if (!principio || dosagens.size === 0) {
-    try {
-      const rRx = await fetch(`https://nih.gov{encodeURIComponent(termo)}&maxEntries=5`);
-      const dRx = await rRx.json();
-      const cands = (dRx && dRx.approximateGroup && dRx.approximateGroup.candidate) || [];
-      for (const c of cands) {
-        if (c.rxcui) {
-          const rProps = await fetch(`https://nih.gov{c.rxcui}/properties.json`);
-          const dProps = await rProps.json();
-          const nomeOficial = dProps && dProps.properties && dProps.properties.name;
-          if (nomeOficial && !principio) principio = nomeOficial;
-          const matches = (nomeOficial || '').match(/\b\d+([.,]\d+)?\s*(mg|mcg|g|ml|ui|unt)(\/ml|\/5ml)?\b/gi);
-          if (matches) matches.forEach(m => dosagens.add(m.toLowerCase()));
-        }
-      }
-    } catch (e) {}
-  }
-
   res.json({
     principio: principio || '',
     tipo: tipo || '',
-    dosagens: Array.from(dosagens)
+    dosagens: Array.from(dosagens),
+    sugestoes
   });
 });
 
