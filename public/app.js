@@ -15,6 +15,7 @@ function norm(t) {
 
 function detectarForma(texto) {
   var l = norm(texto);
+  if (l.indexOf('insulina') !== -1 || l.indexOf('caneta') !== -1 || l.indexOf('refil') !== -1) return 'Insulina / Injetável';
   if (l.indexOf('geleia') !== -1 || l.indexOf('gel oral') !== -1) return 'Geleia Oral';
   if (l.indexOf('pomada') !== -1 || l.indexOf('creme') !== -1 || l.indexOf('gel') !== -1 || l.indexOf('unguento') !== -1) return 'Pomada/Creme';
   if (l.indexOf('xarope') !== -1 || l.indexOf('xpe') !== -1) return 'Xarope';
@@ -88,7 +89,7 @@ function montarTela() {
   var busca = el('input');
   busca.id = 'busca';
   busca.autocomplete = 'off';
-  busca.placeholder = 'Buscar medicamento, substância, xarope, genérico...';
+  busca.placeholder = 'Buscar medicamento, substância, insulina, genérico...';
   busca.oninput = renderizar;
   search.appendChild(busca);
   hdrIn.appendChild(search);
@@ -104,8 +105,8 @@ function montarTela() {
   var hero = el('section', 'hero');
   var hLeft = el('div');
   hLeft.appendChild(el('span', 'hero-tag', 'VITRINE DIGITAL FARMAGERCI'));
-  hLeft.appendChild(el('h2', '', 'Controle Inteligente de Falta'));
-  hLeft.appendChild(el('p', '', 'Escolha a miligrama ou associação na setinha, filtre por Genérico, Similar ou Original e envie o pedido no WhatsApp com 1 clique.'));
+  hLeft.appendChild(el('h2', '', 'Controle Inteligente de Falta A–Z'));
+  hLeft.appendChild(el('p', '', 'Reconhecimento automático de Genéricos, Similares, Originais, Insulinas e Associações. Clique na setinha para escolher a apresentação e copie o pedido no WhatsApp.'));
   hero.appendChild(hLeft);
   var hBtn = el('button', 'btn btn-w', '+ Novo Medicamento');
   hBtn.onclick = abrirModalNovo;
@@ -182,7 +183,7 @@ function montarTela() {
 
   var fg1 = el('div', 'fg');
   var lb1 = el('label');
-  lb1.appendChild(el('span', '', 'Medicamento (ex: Tylenol, Buscopan, Trazodona) *'));
+  lb1.appendChild(el('span', '', 'Medicamento (ex: Insulina NPH, Ciclo 21, Tylenol, Trazodona) *'));
   var bTipo = el('span', '', '');
   bTipo.id = 'badge-tipo';
   bTipo.style.color = '#6d28d9';
@@ -193,7 +194,7 @@ function montarTela() {
   iNome.id = 'nome';
   iNome.autocomplete = 'off';
   iNome.required = true;
-  iNome.placeholder = 'Digite o nome do medicamento...';
+  iNome.placeholder = 'Digite qualquer medicamento de A a Z...';
   iNome.oninput = reconhecer;
   fg1.appendChild(iNome);
   form.appendChild(fg1);
@@ -232,7 +233,7 @@ function montarTela() {
 
   var iDose = el('input');
   iDose.id = 'dosagem';
-  iDose.placeholder = 'Digite a mg, xarope ou pomada...';
+  iDose.placeholder = 'Digite a mg, UI, xarope ou pomada...';
   iDose.style.display = 'none';
   iDose.style.marginTop = '8px';
 
@@ -314,7 +315,6 @@ function preencherSetinha(semDose, substanciaBase, doseExtraida, textoCompleto) 
     optPadrao.value = '';
     sel.appendChild(optPadrao);
 
-    var achou = false;
     opcoes.forEach(function(item) {
       var o = el('option', '', item.label);
       o.value = item.label;
@@ -324,11 +324,12 @@ function preencherSetinha(semDose, substanciaBase, doseExtraida, textoCompleto) 
           (textoCompleto.toLowerCase().indexOf(' dc') !== -1 && item.label.indexOf('DC') !== -1) ||
           (textoCompleto.toLowerCase().indexOf('sinus') !== -1 && item.label.indexOf('Sinus') !== -1) ||
           (textoCompleto.toLowerCase().indexOf('composto') !== -1 && item.label.indexOf('Composto') !== -1) ||
+          (textoCompleto.toLowerCase().indexOf('nph') !== -1 && item.label.indexOf('NPH') !== -1) ||
+          (textoCompleto.toLowerCase().indexOf('regular') !== -1 && item.label.indexOf('Regular') !== -1) ||
           valorAtual === item.label) {
         o.selected = true;
         inpD.value = item.label;
         if (item.sub) document.getElementById('principio').value = item.sub;
-        achou = true;
       }
       sel.appendChild(o);
     });
@@ -366,21 +367,6 @@ function reconhecer() {
     document.getElementById('principio').value = res.principio;
     document.getElementById('tipo_med').value = res.tipo;
     document.getElementById('badge-tipo').textContent = '✓ ' + res.tipo + (res.forma ? ' (' + res.forma + ')' : '');
-
-    if (norm(res.principio) === norm(semDose) && semDose.length >= 4) {
-      clearTimeout(timerOnline);
-      timerOnline = setTimeout(async function() {
-        try {
-          var r = await fetch('https://nih.gov' + encodeURIComponent(semDose) + '&maxEntries=1');
-          var d = await r.json();
-          var cands = d && d.approximateGroup && d.approximateGroup.candidate;
-          var primeiro = cands && cands.shift();
-          if (primeiro && primeiro.name) {
-            document.getElementById('principio').value = primeiro.name;
-          }
-        } catch (e) {}
-      }, 500);
-    }
   } else {
     document.getElementById('principio').value = '';
     document.getElementById('tipo_med').value = '';
@@ -388,6 +374,32 @@ function reconhecer() {
   }
 
   preencherSetinha(semDose, res ? res.principio : '', doseExtraida, txt);
+
+  if (res && norm(res.principio) === norm(semDose) && semDose.length >= 3) {
+    clearTimeout(timerOnline);
+    timerOnline = setTimeout(async function() {
+      try {
+        var r = await fetch('/api/consultar-farmaco?q=' + encodeURIComponent(semDose));
+        var d = await r.json();
+        if (d && d.principio) {
+          document.getElementById('principio').value = d.principio;
+        }
+        if (d && d.dosagens && d.dosagens.length > 0) {
+          var sel = document.getElementById('dosagem_sel');
+          sel.innerHTML = '<option value="">▼ Escolha a apresentação encontrada...</option>';
+          d.dosagens.forEach(function(dose) {
+            var o = el('option', '', dose);
+            o.value = dose;
+            sel.appendChild(o);
+          });
+          var optO = el('option', '', '✎ Digitar outra apresentação...');
+          optO.value = 'OUTRA';
+          sel.appendChild(optO);
+          document.getElementById('dosagem').style.display = 'none';
+        }
+      } catch (e) {}
+    }, 400);
+  }
 }
 
 function avisar(msg) {
