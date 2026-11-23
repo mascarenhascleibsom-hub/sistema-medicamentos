@@ -181,7 +181,7 @@ function montarTela() {
   iNome.id = 'nome';
   iNome.autocomplete = 'off';
   iNome.required = true;
-  iNome.placeholder = 'Digite o nome e escolha a miligrama/variação na seta...';
+  iNome.placeholder = 'Digite o nome do medicamento...';
   iNome.oninput = reconhecer;
   fg1.appendChild(iNome);
   form.appendChild(fg1);
@@ -194,34 +194,30 @@ function montarTela() {
   fg2.appendChild(iPrinc);
 
   var fg3 = el('div', 'fg');
-  fg3.appendChild(el('label', '', 'Miligrama / Associação (Clique na seta)'));
+  fg3.appendChild(el('label', '', 'Miligrama / Apresentação (Opcional)'));
+
   var selDose = el('select');
   selDose.id = 'dosagem_sel';
-  selDose.style.cssText = 'width:100%;padding:10px 13px;border-radius:11px;border:1px solid #cbd5e1;font-size:14px;background:#fff;outline:none';
+  selDose.style.cssText = 'display:none;width:100%;height:42px;padding:0 12px;border-radius:11px;border:1px solid #cbd5e1;font-size:14px;color:#1e293b;background:#fff;outline:none;cursor:pointer';
   selDose.onchange = function() {
     var inpD = document.getElementById('dosagem');
     var optSel = this.options[this.selectedIndex];
     if (this.value === 'OUTRA') {
+      this.style.display = 'none';
       inpD.style.display = 'block';
       inpD.value = '';
       inpD.focus();
     } else {
-      inpD.style.display = 'none';
       inpD.value = this.value;
       if (optSel && optSel.getAttribute('data-sub')) {
         document.getElementById('principio').value = optSel.getAttribute('data-sub');
       }
     }
   };
-  var opt0 = el('option', '', 'Digite o remédio primeiro...');
-  opt0.value = '';
-  selDose.appendChild(opt0);
 
   var iDose = el('input');
   iDose.id = 'dosagem';
-  iDose.placeholder = 'Digite a mg ou apresentação...';
-  iDose.style.display = 'none';
-  iDose.style.marginTop = '6px';
+  iDose.placeholder = 'Ex: 50mg, Xarope, Pomada...';
 
   fg3.appendChild(selDose);
   fg3.appendChild(iDose);
@@ -324,35 +320,49 @@ function reconhecer() {
   }
 
   var sel = document.getElementById('dosagem_sel');
-  if (sel && typeof window.buscarOpcoesMedicamento === 'function') {
+  var inpD = document.getElementById('dosagem');
+  if (sel && inpD && typeof window.buscarOpcoesMedicamento === 'function') {
     var opcoes = window.buscarOpcoesMedicamento(semDose, res ? res.principio : '');
-    var valorAtual = document.getElementById('dosagem').value;
-    sel.innerHTML = '';
+    if (opcoes.length > 0) {
+      var valorAtual = inpD.value;
+      sel.innerHTML = '';
 
-    var optPadrao = el('option', '', '▼ Clique e escolha a mg ou associação...');
-    optPadrao.value = '';
-    sel.appendChild(optPadrao);
+      var optPadrao = el('option', '', 'Escolha a mg / apresentação...');
+      optPadrao.value = '';
+      sel.appendChild(optPadrao);
 
-    opcoes.forEach(function(item) {
-      var o = el('option', '', item.label);
-      o.value = item.label;
-      if (item.sub) o.setAttribute('data-sub', item.sub);
+      opcoes.forEach(function(item) {
+        var o = el('option', '', item.label);
+        o.value = item.label;
+        if (item.sub) o.setAttribute('data-sub', item.sub);
 
-      if ((doseExtraida && item.label.toLowerCase().indexOf(doseExtraida.toLowerCase()) !== -1) ||
-          (txt.toLowerCase().indexOf(' dc') !== -1 && item.label.indexOf('DC') !== -1) ||
-          (txt.toLowerCase().indexOf('sinus') !== -1 && item.label.indexOf('Sinus') !== -1) ||
-          (txt.toLowerCase().indexOf('composto') !== -1 && item.label.indexOf('Composto') !== -1) ||
-          valorAtual === item.label) {
-        o.selected = true;
-        document.getElementById('dosagem').value = item.label;
-        if (item.sub) document.getElementById('principio').value = item.sub;
+        if ((doseExtraida && item.label.toLowerCase().indexOf(doseExtraida.toLowerCase()) !== -1) ||
+            (txt.toLowerCase().indexOf(' dc') !== -1 && item.label.indexOf('DC') !== -1) ||
+            (txt.toLowerCase().indexOf('sinus') !== -1 && item.label.indexOf('Sinus') !== -1) ||
+            (txt.toLowerCase().indexOf('composto') !== -1 && item.label.indexOf('Composto') !== -1) ||
+            valorAtual === item.label) {
+          o.selected = true;
+          inpD.value = item.label;
+          if (item.sub) document.getElementById('principio').value = item.sub;
+        }
+        sel.appendChild(o);
+      });
+
+      var optOutra = el('option', '', 'Digitar outra apresentação...');
+      optOutra.value = 'OUTRA';
+      sel.appendChild(optOutra);
+
+      sel.style.display = 'block';
+      inpD.style.display = 'none';
+    } else {
+      sel.style.display = 'none';
+      inpD.style.display = 'block';
+      if (doseExtraida) {
+        inpD.value = doseExtraida;
+      } else if (res && res.forma) {
+        inpD.value = res.forma;
       }
-      sel.appendChild(o);
-    });
-
-    var optOutra = el('option', '', '✎ Digitar outra apresentação...');
-    optOutra.value = 'OUTRA';
-    sel.appendChild(optOutra);
+    }
   }
 }
 
@@ -534,8 +544,8 @@ function abrirModalNovo() {
   document.getElementById('modal-titulo').textContent = 'Registrar Medicamento / Falta';
   document.getElementById('badge-tipo').textContent = '';
   document.getElementById('form').reset();
-  document.getElementById('dosagem').style.display = 'none';
-  document.getElementById('dosagem_sel').innerHTML = '<option value="">Digite o remédio primeiro...</option>';
+  document.getElementById('dosagem_sel').style.display = 'none';
+  document.getElementById('dosagem').style.display = 'block';
   document.getElementById('unidade').value = 'FarmaGerci Matriz';
   document.getElementById('atual').value = 0;
   document.getElementById('minimo').value = 10;
@@ -550,7 +560,8 @@ function editar(id) {
   document.getElementById('nome').value = m.nome;
   document.getElementById('principio').value = m.principio_ativo || '';
   document.getElementById('dosagem').value = m.dosagem || '';
-  document.getElementById('dosagem').style.display = m.dosagem ? 'block' : 'none';
+  document.getElementById('dosagem').style.display = 'block';
+  document.getElementById('dosagem_sel').style.display = 'none';
   var partesUni = (m.unidade_saude || 'FarmaGerci Matriz').split('•');
   document.getElementById('unidade').value = (partesUni.shift() || 'FarmaGerci Matriz').trim();
   document.getElementById('tipo_med').value = (partesUni.shift() || '').trim();
