@@ -100,6 +100,18 @@ function montarTela() {
   root.appendChild(hdr);
 
   var main = el('main', 'wrap');
+
+  var hero = el('section', 'hero');
+  var hLeft = el('div');
+  hLeft.appendChild(el('span', 'hero-tag', 'PAINEL INTELIGENTE FARMAGERCI'));
+  hLeft.appendChild(el('h2', '', 'Vitrine de Reposição & Falta'));
+  hLeft.appendChild(el('p', '', 'Filtre Genéricos, Similares e Originais ou copie o pedido direto para o fornecedor.'));
+  hero.appendChild(hLeft);
+  var hBtn = el('button', 'btn btn-w', '+ Nova Falta Agora');
+  hBtn.onclick = abrirModalNovo;
+  hero.appendChild(hBtn);
+  main.appendChild(hero);
+
   var metrics = el('section', 'metrics');
   [
     { k: 'TODOS', t: 'Total Cadastrado', id: 'm-total', c: '#1e1b4b' },
@@ -473,22 +485,34 @@ function renderizar() {
     ctop.appendChild(cact);
     card.appendChild(ctop);
 
-    var cmain = el('div', 'cmain');
     var autoInfo = classificarRemedio(m.nome);
     var tipoDetectado = tipoDe(m);
-    var sigla = tipoDetectado === 'Genérico' ? 'G' : (tipoDetectado === 'Similar' ? 'S' : 'Rx');
-
-    cmain.appendChild(el('div', 'rx', sigla));
-    var tb = el('div');
-    tb.appendChild(el('div', 'ctitle', m.nome));
-    if (m.dosagem) tb.appendChild(el('span', 'cdose', m.dosagem));
-    cmain.appendChild(tb);
-    card.appendChild(cmain);
-
-    var ci = el('div', 'cinfo');
     var subst = (m.principio_ativo && norm(m.principio_ativo) !== norm(m.nome))
       ? m.principio_ativo
       : (autoInfo ? autoInfo.principio : m.nome);
+
+    var stage = el('div', 'box-stage');
+    var box3d = el('div', 'box-3d');
+    var bBrand = el('div', 'box-brand');
+    bBrand.appendChild(el('span', '', 'FARMAGERCI'));
+    bBrand.appendChild(el('span', '', m.dosagem || ''));
+    box3d.appendChild(bBrand);
+    box3d.appendChild(el('div', 'box-name', m.nome));
+    box3d.appendChild(el('div', 'box-sub', subst));
+
+    var stripeCls = tipoDetectado === 'Genérico' ? 'box-stripe-g' : (tipoDetectado === 'Original' ? 'box-stripe-rx' : 'box-stripe-s');
+    var stripeTxt = tipoDetectado === 'Genérico' ? 'G • MEDICAMENTO GENÉRICO' : (tipoDetectado === 'Original' ? 'REFERÊNCIA / ORIGINAL' : 'SIMILAR • FARMAGERCI');
+    var stripe = el('div', stripeCls);
+    stripe.appendChild(el('span', '', stripeTxt));
+    box3d.appendChild(stripe);
+
+    stage.appendChild(box3d);
+    card.appendChild(stage);
+
+    card.appendChild(el('div', 'ctitle', m.nome));
+    if (m.dosagem) card.appendChild(el('span', 'cdose', m.dosagem));
+
+    var ci = el('div', 'cinfo');
     var nomeUni = (m.unidade_saude || 'FarmaGerci Matriz').split('•').shift().trim();
     ci.appendChild(el('div', '', 'Substância: ' + subst));
     ci.appendChild(el('div', '', 'Lista: ' + tipoDetectado + ' • ' + nomeUni));
