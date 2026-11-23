@@ -508,3 +508,117 @@ window.buscarOpcoesMedicamento = function(texto, substanciaBase) {
   }
   return [];
 };
+// Pacote de Expansão: Lançamentos Recentes, Suplementos de Ferro, Relaxantes e Todas as Vitaminas D Similares
+Object.assign(window.ORIGINAIS, {
+  firialta: 'Finerenona',
+  kerendia: 'Finerenona',
+  jardiance: 'Empagliflozina',
+  forxiga: 'Dapagliflozina',
+  entresto: 'Sacubitril + Valsartana',
+  mounjaro: 'Tirzepatida',
+  wegovy: 'Semaglutida',
+  rybelsus: 'Semaglutida',
+  relvar: 'Furoato de Fluticasona + Trifenatato de Vilanterol',
+  trelegy: 'Fluticasona + Umeclidínio + Vilanterol',
+  anoro: 'Brometo de Umeclidínio + Trifenatato de Vilanterol',
+  ultibro: 'Maleato de Indacaterol + Brometo de Glicopirrônio',
+  xarelto: 'Rivaroxabana',
+  eliquis: 'Apixabana',
+  lixiana: 'Tosilato de Edoxabana',
+  pradaxa: 'Etexilato de Dabigatrana'
+});
+
+Object.assign(window.SIMILARES, {
+  // Relaxantes Musculares Similares
+  dortrirelax: 'Dipirona Monoidratada + Citrato de Orfenadrina + Cafeína',
+  dorflex: 'Dipirona Monoidratada + Citrato de Orfenadrina + Cafeína',
+  miorrelax: 'Dipirona Monoidratada + Citrato de Orfenadrina + Cafeína',
+  sedalex: 'Dipirona Monoidratada + Citrato de Orfenadrina + Cafeína',
+  dorilax: 'Dipirona Monoidratada + Citrato de Orfenadrina + Cafeína',
+  nevralgex: 'Dipirona Monoidratada + Citrato de Orfenadrina + Cafeína',
+  anaflex: 'Dipirona Monoidratada + Citrato de Orfenadrina + Cafeína',
+  musculare: 'Cloridrato de Ciclobenzaprina',
+  miosan: 'Cloridrato de Ciclobenzaprina',
+  mitrul: 'Cloridrato de Ciclobenzaprina',
+  torsilax: 'Cafeína + Carisoprodol + Diclofenaco Sódico + Paracetamol',
+  tandrilax: 'Cafeína + Carisoprodol + Diclofenaco Sódico + Paracetamol',
+  infralax: 'Cafeína + Carisoprodol + Diclofenaco Sódico + Paracetamol',
+  mioflex: 'Cafeína + Carisoprodol + Diclofenaco Sódico + Paracetamol',
+  beserol: 'Cafeína + Carisoprodol + Diclofenaco Sódico + Paracetamol',
+
+  // Suplementos de Ferro / Antianêmicos Similares
+  'fe-lip': 'Ferro Lipossomal (Pirofosfato Férrico)',
+  felip: 'Ferro Lipossomal (Pirofosfato Férrico)',
+  noripurum: 'Ferripolimaltose (Hidróxido de Ferro III Polimaltosado)',
+  neutrofer: 'Ferro Quelato Glicinato',
+  combiron: 'Ferro Carbonila + Complexo B + Ácido Fólico',
+  endofolin: 'Ácido Fólico (Vitamina B9)',
+  folifer: 'Ferro Quelato + Ácido Fólico',
+  myralis: 'Ferro Quelato Glicinato',
+  fertron: 'Ferro Quelato Glicinato',
+  hemofol: 'Sulfato Ferroso',
+  anemifer: 'Sulfato Ferroso',
+
+  // TODAS as Vitaminas D3 Similares / Comerciais do Brasil
+  addera: 'Colecalciferol (Vitamina D3)',
+  'addera d3': 'Colecalciferol (Vitamina D3)',
+  doss: 'Colecalciferol (Vitamina D3)',
+  depura: 'Colecalciferol (Vitamina D3)',
+  'font d': 'Colecalciferol (Vitamina D3)',
+  fontd: 'Colecalciferol (Vitamina D3)',
+  vitersol: 'Colecalciferol (Vitamina D3)',
+  'vitersol d': 'Colecalciferol (Vitamina D3)',
+  desunin: 'Colecalciferol (Vitamina D3)',
+  dprev: 'Colecalciferol (Vitamina D3)',
+  'd-prev': 'Colecalciferol (Vitamina D3)',
+  eurovit: 'Colecalciferol (Vitamina D3)',
+  'neo d3': 'Colecalciferol (Vitamina D3)',
+  neod3: 'Colecalciferol (Vitamina D3)',
+  lavitan: 'Polivitamínico / Colecalciferol',
+  'lavitan d': 'Colecalciferol (Vitamina D3)',
+  'vitamina d': 'Colecalciferol (Vitamina D3)',
+  'vit d': 'Colecalciferol (Vitamina D3)',
+  'vit d3': 'Colecalciferol (Vitamina D3)',
+  colecalciferol: 'Colecalciferol (Vitamina D3)',
+  ostenan: 'Colecalciferol (Vitamina D3)',
+  maxxi: 'Colecalciferol (Vitamina D3)',
+  'maxxi d3': 'Colecalciferol (Vitamina D3)',
+  dedos: 'Colecalciferol (Vitamina D3)',
+  d3: 'Colecalciferol (Vitamina D3)',
+  calcitran: 'Carbonato de Cálcio + Colecalciferol (Vitamina D3)',
+  oscal: 'Carbonato de Cálcio + Colecalciferol (Vitamina D3)',
+  'os-cal': 'Carbonato de Cálcio + Colecalciferol (Vitamina D3)',
+  fixare: 'Citrato Malato de Cálcio + Vitamina D3 + K2',
+  inala: 'Colecalciferol (Vitamina D3)',
+  beld3: 'Colecalciferol (Vitamina D3)',
+  'bel d3': 'Colecalciferol (Vitamina D3)',
+
+  // Outras Vitaminas & Suplementos Essenciais
+  citoneurin: 'Vitamina B1 (Tiamina) + Vitamina B6 (Piridoxina) + Vitamina B12 (Cianocobalamina)',
+  'citoneurin 5000': 'Vitamina B1 + Vitamina B6 + Vitamina B12 (5.000 mcg)',
+  etn: 'Vitamina B1 + Vitamina B6 + Vitamina B12',
+  dexaneurin: 'Dexametasona + Vitamina B1 + B6 + B12',
+  redoxon: 'Ácido Ascórbico (Vitamina C)',
+  cewin: 'Ácido Ascórbico (Vitamina C)',
+  energic: 'Ácido Ascórbico (Vitamina C)',
+  targifor: 'Aspartato de Arginina + Ácido Ascórbico (Vitamina C)',
+  bio: 'Ácido Ascórbico (Vitamina C)',
+  cogmax: 'Suplemento Cognitivo (Magnésio + Zinco + Vitaminas)',
+  tamarine: 'Senna alexandrina + Cassia fistula (Geleia Oral)',
+  'tamarine fibras': 'Polidextrose + FOS (Fibras Prebióticas)'
+});
+
+Object.assign(window.DOSES_POR_SUBSTANCIA, {
+  finerenona: ['10mg', '20mg'],
+  firialta: ['10mg', '20mg'],
+  'ferro lipossomal': ['30mg (Cápsulas)', '15mg/ml (Gotas / Suspensão)'],
+  'fe-lip': ['30mg (Cápsulas)', '15mg/ml (Gotas / Suspensão)'],
+  ferripolimaltose: ['100mg (Comprimido)', '50mg/ml (Gotas)', '10mg/ml (Xarope)'],
+  'ferro quelato': ['30mg', '50mg', '100mg', 'Gotas'],
+  orfenadrina: ['Simples (Dipirona 300mg + Orfenadrina 35mg + Cafeína 50mg)', 'Max (Dipirona 1g + Orfenadrina 70mg + Cafeína 100mg)'],
+  dortrirelax: ['300mg + 35mg + 50mg (Comprimido)'],
+  colecalciferol: ['1.000 UI', '2.000 UI', '5.000 UI', '7.000 UI', '10.000 UI', '50.000 UI', '200 UI/gota (Gotas)', '1.000 UI/gota (Gotas)'],
+  'vitamina d': ['1.000 UI', '2.000 UI', '5.000 UI', '7.000 UI', '10.000 UI', '50.000 UI', 'Gotas'],
+  'vitamina c': ['500mg', '1g (Efervescente)', '2g (Efervescente)', '200mg/ml (Gotas)'],
+  cianocobalamina: ['1.000 mcg', '5.000 mcg (Injetável / Comprimido)', 'Gotas Sublingual']
+});
