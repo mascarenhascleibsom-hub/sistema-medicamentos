@@ -149,13 +149,7 @@ function aplicarCaixaFundo(root) {
 
   var bgDiv = el('div', '');
   bgDiv.id = 'bg-remedio';
-  bgDiv.style.cssText = 'position:fixed;top:0;left:0;width:100vw;height:100vh;z-index:0;background-size:cover;background-position:center center;background-repeat:no-repeat;opacity:0.25;filter:saturate(1.15) contrast(1.05);pointer-events:none;transition:opacity 0.6s ease;background-image:url("' + fotosReais[novoIdx] + '")';
-
-  var imgTest = new Image();
-  imgTest.onerror = function() {
-    bgDiv.style.backgroundImage = 'url("https://wikimedia.org")';
-  };
-  imgTest.src = fotosReais[novoIdx];
+  bgDiv.style.cssText = 'position:fixed;top:0;left:0;width:100vw;height:100vh;z-index:0;background-size:cover;background-position:center center;background-repeat:no-repeat;opacity:0.32;filter:saturate(1.2) contrast(1.06);pointer-events:none;transition:opacity 0.6s ease;background-image:url("' + fotosReais[novoIdx] + '")';
 
   root.appendChild(bgDiv);
 }
