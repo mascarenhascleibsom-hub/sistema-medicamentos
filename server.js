@@ -21,7 +21,22 @@ function normTxt(t) {
 }
 
 function colAt(arr, idx) {
-  return (arr.slice(idx, idx + 1).shift() || '').replace(/"/g, '').trim();
+  return (arr[idx] || '').replace(/"/g, '').trim();
+}
+
+function formatarApresentacao(apres) {
+  if (!apres) return '';
+  let txt = apres.replace(/\s+/g, ' ').trim();
+  txt = txt.replace(/\bCT BL AL PLAS\b/gi, 'Cartela');
+  txt = txt.replace(/\bCT STR AL\b/gi, 'Cartela');
+  txt = txt.replace(/\bCT FR PLAS\b/gi, 'Frasco');
+  txt = txt.replace(/\bCT BG AL\b/gi, 'Bisnaga');
+  txt = txt.replace(/\bCOM REV\b/gi, 'Comp. Rev.');
+  txt = txt.replace(/\bCOM\b/gi, 'Comp.');
+  txt = txt.replace(/\bSOL OR\b/gi, 'Sol. Oral');
+  txt = txt.replace(/\bSUSP OR\b/gi, 'Susp. Oral');
+  txt = txt.replace(/\bX\s*(\d+)\b/gi, 'Caixa c/ $1');
+  return txt.slice(0, 52);
 }
 
 function carregarCatalogoLocalAnvisa() {
@@ -61,7 +76,7 @@ function carregarCatalogoLocalAnvisa() {
       const cols = linhas[i].split(';');
       if (cols.length <= Math.max(colProd, colSub)) continue;
 
-      const principio = colAt(cols, colSub);
+      let principio = colAt(cols, colSub).replace(/\s*;\s*/g, ' + ');
       const nomeProd = colAt(cols, colProd);
       const apres = colAt(cols, colApres);
       const catReg = colAt(cols, colTipo);
@@ -74,25 +89,24 @@ function carregarCatalogoLocalAnvisa() {
       if (cNorm.includes('generico')) tipo = 'Genérico';
       else if (cNorm.includes('novo') || cNorm.includes('referencia') || cNorm.includes('biologico') || cNorm.includes('especifico')) tipo = 'Original';
 
-      const chave = normTxt(nomeFinal) + '|' + normTxt(principio);
+      const chave = normTxt(nomeFinal);
       if (!mapa.has(chave)) {
         mapa.set(chave, {
           nome: nomeFinal,
-          nomeNorm: normTxt(nomeFinal),
+          nomeNorm: chave,
           principio: principio || nomeFinal,
           principioNorm: normTxt(principio || nomeFinal),
           tipo,
           dosagens: new Set()
         });
+      } else if (principio && principio.length > mapa.get(chave).principio.length) {
+        mapa.get(chave).principio = principio;
+        mapa.get(chave).principioNorm = normTxt(principio);
       }
 
       if (apres) {
-        const matches = apres.match(/\b\d+(?:\.\d+|\,\d+)?\s*(?:mg|mcg|g|ml|ui|unt)(?:\/[a-z0-9]+)?(?:\s*\+\s*\d+(?:\.\d+|\,\d+)?\s*(?:mg|mcg|g|ml|ui|unt)(?:\/[a-z0-9]+)?)?/gi);
-        if (matches) {
-          matches.forEach(m => mapa.get(chave).dosagens.add(m.toUpperCase()));
-        } else {
-          mapa.get(chave).dosagens.add(apres.slice(0, 38));
-        }
+        const formatada = formatarApresentacao(apres);
+        if (formatada) mapa.get(chave).dosagens.add(formatada);
       }
     }
 
@@ -195,17 +209,10 @@ app.get('/api/consultar-farmaco', (req, res) => {
   const combinados = comecaCom.concat(contemTodas).slice(0, 20);
   const escolhido = exato || combinados.slice(0, 1).shift();
 
-  const todasDosagens = new Set();
-  if (escolhido) {
-    baseAnvisa
-      .filter(m => m.nomeNorm === escolhido.nomeNorm && m.principioNorm === escolhido.principioNorm)
-      .forEach(m => m.dosagens.forEach(d => todasDosagens.add(d)));
-  }
-
   res.json({
     principio: escolhido ? escolhido.principio : '',
     tipo: escolhido ? escolhido.tipo : '',
-    dosagens: Array.from(todasDosagens),
+    dosagens: escolhido ? escolhido.dosagens : new Array(),
     sugestoes: combinados.map(p => ({ nome: p.nome, principio: p.principio, tipo: p.tipo }))
   });
 });
