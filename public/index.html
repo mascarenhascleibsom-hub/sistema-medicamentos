@@ -1,25 +1,67 @@
-{
-  "id": "/",
-  "name": "FarmaGerci • Gestão de Medicamentos",
-  "short_name": "FarmaGerci",
-  "description": "Controle de Falta e Reposição de Medicamentos",
-  "start_url": "/",
-  "scope": "/",
-  "display": "standalone",
-  "background_color": "#2e1065",
-  "theme_color": "#6d28d9",
-  "icons": [
-    {
-      "src": "/logo.png",
-      "sizes": "192x192",
-      "type": "image/png",
-      "purpose": "any maskable"
-    },
-    {
-      "src": "/logo.png",
-      "sizes": "512x512",
-      "type": "image/png",
-      "purpose": "any maskable"
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#4c1d95" />
+  <link id="app-icon" rel="icon" href="/icon.svg" type="image/svg+xml" />
+  <link id="apple-icon" rel="apple-touch-icon" href="/icon.svg" />
+  <title>FarmaGerci • Central de Falta & Reposição</title>
+  <link rel="stylesheet" href="/style.css?v=50" />
+</head>
+<body>
+  <div id="app"></div>
+  <script>
+    (function() {
+      var c = document.createElement('canvas');
+      c.width = 512; c.height = 512;
+      var ctx = c.getContext('2d');
+
+      // Fundo roxo degradê profissional
+      var grad = ctx.createLinearGradient(0, 0, 512, 512);
+      grad.addColorStop(0, '#2e1065');
+      grad.addColorStop(1, '#7c3aed');
+      ctx.fillStyle = grad;
+      ctx.beginPath();
+      ctx.roundRect(0, 0, 512, 512, 115);
+      ctx.fill();
+
+      // Anel sutil interno
+      ctx.strokeStyle = 'rgba(255,255,255,0.22)';
+      ctx.lineWidth = 10;
+      ctx.beginPath();
+      ctx.roundRect(24, 24, 464, 464, 96);
+      ctx.stroke();
+
+      // Cruz médica branca central
+      ctx.fillStyle = '#ffffff';
+      ctx.beginPath();
+      ctx.roundRect(212, 112, 88, 288, 24);
+      ctx.roundRect(112, 212, 288, 88, 24);
+      ctx.fill();
+
+      // Selo dourado farmacêutico no canto
+      ctx.fillStyle = '#facc15';
+      ctx.beginPath();
+      ctx.arc(388, 388, 48, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.fillStyle = '#2e1065';
+      ctx.font = 'bold 44px Arial';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText('Rx', 388, 391);
+
+      var pngUrl = c.toDataURL('image/png');
+      document.getElementById('app-icon').href = pngUrl;
+      document.getElementById('apple-icon').href = pngUrl;
+    })();
+  </script>
+  <script src="/farmacos.js?v=50"></script>
+  <script src="/app.js?v=50"></script>
+  <script>
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('/sw.js');
     }
-  ]
-}
+  </script>
+</body>
+</html>
