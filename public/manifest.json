@@ -1,9 +1,9 @@
 {
-  "id": "/",
+  "id": "/farmagerci-app-v2",
   "name": "FarmaGerci • Gestão de Medicamentos",
   "short_name": "FarmaGerci",
   "description": "Controle de Falta e Reposição de Medicamentos",
-  "start_url": "/",
+  "start_url": "/index.html",
   "scope": "/",
   "display": "standalone",
   "background_color": "#2e1065",
