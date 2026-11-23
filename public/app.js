@@ -30,21 +30,21 @@ function detectarForma(texto) {
 }
 
 function ehGenericoPorNome(limpo) {
-  var sais = [
+  var sais = new Array(
     'cloridrato de ', 'maleato de ', 'besilato de ', 'tartarato de ', 'hemitartarato de ',
     'oxalato de ', 'bromidrato de ', 'succinato de ', 'sulfato de ', 'fosfato de ',
     'citrato de ', 'mesilato de ', 'dipropionato de ', 'valerato de ', 'acetato de ',
     'fumarato de ', 'nitrato de ', 'dicloridrato de ', 'bissulfato de ', 'tromesilato de ',
     'monoidratad', 'tri-hidratad', 'di-hidratad', 'hemi-hidratad', 'sodica', 'sodico',
     'potassica', 'potassico', 'calcica', 'calcico', 'magnesio', 'zincica'
-  ];
+  );
   for (var i = 0; i < sais.length; i++) {
     if (limpo.indexOf(sais[i]) !== -1) return true;
   }
 
   var palavras = limpo.split(' ');
   var primeira = palavras.shift() || '';
-  var sufixosGenericos = [
+  var sufixosGenericos = new Array(
     'prazol', 'sartana', 'statina', 'olol', 'pril', 'dipino', 'micina', 'cilina',
     'oxacino', 'conazol', 'clovir', 'zepam', 'zolam', 'zepina', 'oxetina', 'tralina',
     'lafaxina', 'gliptina', 'flozina', 'glutida', 'triptana', 'tidina', 'filina',
@@ -55,7 +55,7 @@ function ehGenericoPorNome(limpo) {
     'enalapril', 'atenolol', 'sinvastatina', 'atorvastatina', 'rosuvastatina', 'metformina',
     'omeprazol', 'pantoprazol', 'loratadina', 'prednisona', 'clonazepam', 'sertralina',
     'fluoxetina', 'escitalopram', 'quetiapina', 'risperidona', 'pregabalina', 'levotiroxina'
-  ];
+  );
   for (var j = 0; j < sufixosGenericos.length; j++) {
     if (primeira.length >= 6 && primeira.endsWith(sufixosGenericos[j])) return true;
   }
@@ -101,14 +101,14 @@ function classificarRemedio(texto) {
 
 function soltarEmojisFarmacia(texto) {
   var l = norm(texto || '');
-  var listaEmojis = ['💊', '💊', '🩺'];
+  var listaEmojis = new Array('💊', '💊', '🩺');
 
   if (l.indexOf('insulina') !== -1 || l.indexOf('lantus') !== -1 || l.indexOf('novorapid') !== -1 || l.indexOf('humalog') !== -1 || l.indexOf('tresiba') !== -1 || l.indexOf('toujeo') !== -1 || l.indexOf('injetavel') !== -1 || l.indexOf('caneta') !== -1) {
-    listaEmojis = ['💉', '💉', '🩺'];
+    listaEmojis = new Array('💉', '💉', '🩺');
   } else if (l.indexOf('xarope') !== -1 || l.indexOf('gotas') !== -1 || l.indexOf('suspensao') !== -1 || l.indexOf('ml') !== -1 || l.indexOf('pomada') !== -1 || l.indexOf('creme') !== -1 || l.indexOf('geleia') !== -1 || l.indexOf('colirio') !== -1 || l.indexOf('spray') !== -1) {
-    listaEmojis = ['🧴', '💧', '🧪'];
+    listaEmojis = new Array('🧴', '💧', '🧪');
   } else if (l === 'boas-vindas') {
-    listaEmojis = ['💊', '💉', '🧴', '🩺'];
+    listaEmojis = new Array('💊', '💉', '🧴', '🩺');
   }
 
   for (var i = 0; i < 14; i++) {
@@ -135,13 +135,13 @@ function selecionarCategoria(cat) {
 }
 
 function aplicarCaixaFundo(root) {
-  var fotosReais = [
+  var fotosReais = new Array(
     'https://wikimedia.org',
     'https://wikimedia.org',
     'https://wikimedia.org',
     'https://wikimedia.org',
     'https://wikimedia.org'
-  ];
+  );
 
   var idxAnterior = Number(localStorage.getItem('fg_bg_idx') || -1);
   var novoIdx = (idxAnterior + 1) % fotosReais.length;
@@ -160,65 +160,263 @@ function aplicarCaixaFundo(root) {
   root.appendChild(bgDiv);
 }
 
-function soltarEmojisFarmacia(texto) {
-  var l = norm(texto || '');
-  var listaEmojis = ['💊', '💊', '🩺'];
+function montarTela() {
+  var root = document.getElementById('app');
+  root.innerHTML = '';
+  aplicarCaixaFundo(root);
 
-  if (l.indexOf('insulina') !== -1 || l.indexOf('lantus') !== -1 || l.indexOf('novorapid') !== -1 || l.indexOf('humalog') !== -1 || l.indexOf('tresiba') !== -1 || l.indexOf('toujeo') !== -1 || l.indexOf('injetavel') !== -1 || l.indexOf('caneta') !== -1) {
-    listaEmojis = ['💉', '💉', '🩺'];
-  } else if (l.indexOf('xarope') !== -1 || l.indexOf('gotas') !== -1 || l.indexOf('suspensao') !== -1 || l.indexOf('ml') !== -1 || l.indexOf('pomada') !== -1 || l.indexOf('creme') !== -1 || l.indexOf('geleia') !== -1 || l.indexOf('colirio') !== -1 || l.indexOf('spray') !== -1) {
-    listaEmojis = ['🧴', '💧', '🧪'];
-  } else if (l === 'boas-vindas') {
-    listaEmojis = ['💊', '💉', '🧴', '🩺'];
-  }
+  var toast = el('div', 'toast', 'Salvo!');
+  toast.id = 'toast';
+  root.appendChild(toast);
 
-  for (var i = 0; i < 14; i++) {
-    (function(idx) {
-      setTimeout(function() {
-        var span = document.createElement('span');
-        span.className = 'emoji-float';
-        span.textContent = listaEmojis[idx % listaEmojis.length];
-        span.style.left = (6 + Math.random() * 88) + 'vw';
-        span.style.fontSize = (28 + Math.floor(Math.random() * 18)) + 'px';
-        document.body.appendChild(span);
-        setTimeout(function() { span.remove(); }, 2500);
-      }, idx * 95);
-    })(i);
-  }
-}
+  var top = el('div', 'top');
+  top.appendChild(el('span', '', 'Controle de Falta & Reposição • FarmaGerci'));
+  var stDb = el('span', '', '● Conectando...');
+  stDb.id = 'status-db';
+  top.appendChild(stDb);
+  root.appendChild(top);
 
-function selecionarCategoria(cat) {
-  document.getElementById('tipo_med').value = cat;
-  document.getElementById('badge-tipo').textContent = '✓ ' + cat;
-  document.querySelectorAll('[data-cat]').forEach(function(btn) {
-    btn.classList.toggle('active', btn.getAttribute('data-cat') === cat);
+  var hdr = el('header', 'hdr');
+  var hdrIn = el('div', 'hdr-in');
+  var logo = el('div', 'logo');
+  logo.appendChild(el('div', 'logo-box', '+'));
+  var ltxt = el('div');
+  ltxt.appendChild(el('h1', '', 'FarmaGerci'));
+  ltxt.appendChild(el('p', '', 'Gestão Inteligente de Falta de Medicamentos'));
+  logo.appendChild(ltxt);
+  hdrIn.appendChild(logo);
+
+  var search = el('div', 'search');
+  var busca = el('input');
+  busca.id = 'busca';
+  busca.autocomplete = 'off';
+  busca.placeholder = 'Buscar medicamento, substância, insulina, genérico...';
+  busca.oninput = renderizar;
+  search.appendChild(busca);
+  hdrIn.appendChild(search);
+
+  var bNovo = el('button', 'btn btn-w', '+ Registrar Falta');
+  bNovo.onclick = abrirModalNovo;
+  hdrIn.appendChild(bNovo);
+  hdr.appendChild(hdrIn);
+  root.appendChild(hdr);
+
+  var main = el('main', 'wrap');
+
+  var hero = el('section', 'hero');
+  var hLeft = el('div');
+  hLeft.appendChild(el('span', 'hero-tag', 'SISTEMA FARMACÊUTICO FARMAGERCI • BRASIL A–Z'));
+  hLeft.appendChild(el('h2', '', 'Central de Falta & Reposição'));
+  hLeft.appendChild(el('p', '', 'Reconhecimento automático de Genéricos, Similares, Originais, Insulinas e Associações com seleção rápida de miligramas.'));
+  hero.appendChild(hLeft);
+  var hBtn = el('button', 'btn btn-w', '+ Novo Medicamento');
+  hBtn.onclick = abrirModalNovo;
+  hero.appendChild(hBtn);
+  main.appendChild(hero);
+
+  var metrics = el('section', 'metrics');
+  new Array(
+    { k: 'TODOS', t: 'Total Cadastrado', id: 'm-total', c: '#4c1d95' },
+    { k: 'FALTA', t: 'Em Falta (Zero)', id: 'm-falta', c: '#dc2626' },
+    { k: 'CRITICO', t: 'Estoque Baixo', id: 'm-critico', c: '#d97706' },
+    { k: 'NORMAL', t: 'Disponíveis', id: 'm-normal', c: '#059669' }
+  ).forEach(function(d) {
+    var mc = el('button', 'mcard' + (d.k === 'TODOS' ? ' active' : ''));
+    mc.setAttribute('data-filtro', d.k);
+    mc.appendChild(el('small', '', d.t));
+    var h2 = el('h2', '', '0');
+    h2.id = d.id;
+    h2.style.color = d.c;
+    mc.appendChild(h2);
+    mc.onclick = function() { filtrar(d.k); };
+    metrics.appendChild(mc);
   });
-}
+  main.appendChild(metrics);
 
-function aplicarCaixaFundo(root) {
-  var fotosReais = [
-    'https://wikimedia.org',
-    'https://wikimedia.org',
-    'https://wikimedia.org',
-    'https://wikimedia.org',
-    'https://wikimedia.org'
-  ];
+  var bar = el('div', 'bar');
+  var pills = el('div', 'pills');
+  new Array(
+    { k: 'TODOS', t: 'Todos' },
+    { k: 'FALTA', t: 'Lista: Em Falta' },
+    { k: 'GENERICO', t: 'Genéricos (G)' },
+    { k: 'SIMILAR', t: 'Similares (S)' },
+    { k: 'ORIGINAL', t: 'Originais (Rx)' },
+    { k: 'XAROPE', t: 'Xaropes / Líquidos' }
+  ).forEach(function(p) {
+    var pb = el('button', 'pill' + (p.k === 'TODOS' ? ' active' : ''), p.t);
+    pb.setAttribute('data-filtro', p.k);
+    pb.onclick = function() { filtrar(p.k); };
+    pills.appendChild(pb);
+  });
+  bar.appendChild(pills);
 
-  var idxAnterior = Number(localStorage.getItem('fg_bg_idx') || -1);
-  var novoIdx = (idxAnterior + 1) % fotosReais.length;
-  localStorage.setItem('fg_bg_idx', String(novoIdx));
+  var bCop = el('button', 'pill', '📋 Copiar Lista WhatsApp');
+  bCop.onclick = copiarPedido;
+  bar.appendChild(bCop);
+  main.appendChild(bar);
 
-  var bgDiv = el('div', '');
-  bgDiv.id = 'bg-remedio';
-  bgDiv.style.cssText = 'position:fixed;top:0;left:0;width:100vw;height:100vh;z-index:0;background-size:cover;background-position:center center;background-repeat:no-repeat;opacity:0.25;filter:saturate(1.15) contrast(1.05);pointer-events:none;transition:opacity 0.6s ease;background-image:url("' + fotosReais[novoIdx] + '")';
+  var vitrine = el('section', 'grid');
+  vitrine.id = 'vitrine';
+  main.appendChild(vitrine);
+  root.appendChild(main);
 
-  var imgTest = new Image();
-  imgTest.onerror = function() {
-    bgDiv.style.backgroundImage = 'url("https://wikimedia.org")';
+  var mBg = el('div', 'modal-bg');
+  mBg.id = 'modal';
+  var modal = el('div', 'modal');
+  var mhead = el('div', 'mhead');
+  var mTit = el('strong', '', 'Registrar Medicamento');
+  mTit.id = 'modal-titulo';
+  var mX = el('button', '', '×');
+  mX.style.cssText = 'background:none;border:none;color:#fff;font-size:26px;cursor:pointer';
+  mX.onclick = fecharModal;
+  mhead.appendChild(mTit);
+  mhead.appendChild(mX);
+  modal.appendChild(mhead);
+
+  var form = el('form', 'mbody');
+  form.id = 'form';
+  form.onsubmit = salvarFormulario;
+
+  var hid = el('input');
+  hid.type = 'hidden';
+  hid.id = 'edit-id';
+  form.appendChild(hid);
+
+  var fg1 = el('div', 'fg');
+  var lb1 = el('label');
+  lb1.appendChild(el('span', '', 'Medicamento (ex: Apresolina, Insulina NPH, Tylenol, Trazodona) *'));
+  var bTipo = el('span', '', '');
+  bTipo.id = 'badge-tipo';
+  bTipo.style.color = '#7c3aed';
+  lb1.appendChild(bTipo);
+  fg1.appendChild(lb1);
+
+  var iNome = el('input');
+  iNome.id = 'nome';
+  iNome.autocomplete = 'off';
+  iNome.required = true;
+  iNome.placeholder = 'Digite qualquer medicamento de A a Z...';
+  iNome.oninput = function() { reconhecer(false); };
+  fg1.appendChild(iNome);
+
+  var dl = el('datalist');
+  dl.id = 'sugestoes-anvisa';
+  iNome.setAttribute('list', 'sugestoes-anvisa');
+  fg1.appendChild(dl);
+  form.appendChild(fg1);
+
+  var row1 = el('div', 'frow');
+  var fg2 = el('div', 'fg');
+  fg2.appendChild(el('label', '', 'Substância / Princípio Ativo'));
+  var iPrinc = el('input');
+  iPrinc.id = 'principio';
+  fg2.appendChild(iPrinc);
+
+  var fg3 = el('div', 'fg');
+  fg3.appendChild(el('label', '', 'Miligrama / Associação (Clique na seta ▼)'));
+
+  var selDose = el('select');
+  selDose.id = 'dosagem_sel';
+  selDose.style.cursor = 'pointer';
+  selDose.onchange = function() {
+    var inpD = document.getElementById('dosagem');
+    var optSel = this.options[this.selectedIndex];
+    if (this.value === 'OUTRA') {
+      inpD.style.display = 'block';
+      inpD.value = '';
+      inpD.focus();
+    } else {
+      inpD.style.display = 'none';
+      inpD.value = this.value;
+      if (optSel && optSel.getAttribute('data-sub')) {
+        document.getElementById('principio').value = optSel.getAttribute('data-sub');
+      }
+    }
   };
-  imgTest.src = fotosReais[novoIdx];
+  var opt0 = el('option', '', '▼ Selecione a mg ou apresentação...');
+  opt0.value = '';
+  selDose.appendChild(opt0);
 
-  root.appendChild(bgDiv);
+  var iDose = el('input');
+  iDose.id = 'dosagem';
+  iDose.placeholder = 'Digite a mg, UI, xarope ou pomada...';
+  iDose.style.display = 'none';
+  iDose.style.marginTop = '8px';
+
+  fg3.appendChild(selDose);
+  fg3.appendChild(iDose);
+  row1.appendChild(fg2);
+  row1.appendChild(fg3);
+  form.appendChild(row1);
+
+  var rowTipo = el('div', 'frow');
+  var fgTipo = el('div', 'fg');
+  fgTipo.appendChild(el('label', '', 'Lista / Categoria (Clique para trocar)'));
+
+  var wrapTipo = el('div', '');
+  wrapTipo.style.cssText = 'display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px';
+
+  var iTipo = el('input');
+  iTipo.type = 'hidden';
+  iTipo.id = 'tipo_med';
+  iTipo.value = 'Similar';
+  wrapTipo.appendChild(iTipo);
+
+  new Array('Original', 'Genérico', 'Similar').forEach(function(cat) {
+    var bCat = el('button', 'pill', cat);
+    bCat.type = 'button';
+    bCat.setAttribute('data-cat', cat);
+    bCat.style.cssText = 'padding:10px 6px;font-size:12px;text-align:center;border-radius:10px;border:1px solid #ddd6fe';
+    bCat.onclick = function() { selecionarCategoria(cat); };
+    wrapTipo.appendChild(bCat);
+  });
+  fgTipo.appendChild(wrapTipo);
+
+  var fg4 = el('div', 'fg');
+  fg4.appendChild(el('label', '', 'Unidade / Filial'));
+  var iUni = el('input');
+  iUni.id = 'unidade';
+  iUni.value = 'FarmaGerci Matriz';
+  fg4.appendChild(iUni);
+  rowTipo.appendChild(fgTipo);
+  rowTipo.appendChild(fg4);
+  form.appendChild(rowTipo);
+
+  var row2 = el('div', 'frow');
+  var fg5 = el('div', 'fg');
+  fg5.appendChild(el('label', '', 'Estoque Atual *'));
+  var iAt = el('input');
+  iAt.type = 'number';
+  iAt.id = 'atual';
+  iAt.value = '0';
+  iAt.required = true;
+  fg5.appendChild(iAt);
+
+  var fg6 = el('div', 'fg');
+  fg6.appendChild(el('label', '', 'Estoque Mínimo *'));
+  var iMin = el('input');
+  iMin.type = 'number';
+  iMin.id = 'minimo';
+  iMin.value = '10';
+  iMin.required = true;
+  fg6.appendChild(iMin);
+  row2.appendChild(fg5);
+  row2.appendChild(fg6);
+  form.appendChild(row2);
+
+  var mfoot = el('div', 'mfoot');
+  var bCanc = el('button', 'pill', 'Cancelar');
+  bCanc.type = 'button';
+  bCanc.onclick = fecharModal;
+  var bSalv = el('button', 'btn btn-p', 'Salvar na FarmaGerci');
+  bSalv.type = 'submit';
+  mfoot.appendChild(bCanc);
+  mfoot.appendChild(bSalv);
+  form.appendChild(mfoot);
+
+  modal.appendChild(form);
+  mBg.appendChild(modal);
+  root.appendChild(mBg);
 }
 
 function preencherSetinha(semDose, substanciaBase, doseExtraida, textoCompleto) {
@@ -605,22 +803,22 @@ function copiarPedido() {
   var itens = obterFiltrados();
   if (!itens.length) { avisar('Nenhum item nesta lista para copiar!'); return; }
 
-  var grupos = { 'Genérico': [], 'Original': [], 'Similar': [] };
+  var grupos = { 'Genérico': new Array(), 'Original': new Array(), 'Similar': new Array() };
   itens.forEach(function(m) {
     var cat = tipoDe(m);
-    if (!grupos[cat]) grupos[cat] = [];
+    if (!grupos[cat]) grupos[cat] = new Array();
     grupos[cat].push(m);
   });
 
   var dataHoje = new Date().toLocaleDateString('pt-BR');
-  var linhas = [
+  var linhas = new Array(
     '🏥 *PEDIDO DE REPOSIÇÃO — FARMAGERCI*',
     '📅 Data: ' + dataHoje + ' | Filtro: *' + filtroAtivo + '*',
     '📦 Total de itens: *' + itens.length + '*',
     '━━━━━━━━━━━━━━━━━━━━'
-  ];
+  );
 
-  ['Genérico', 'Original', 'Similar'].forEach(function(cat) {
+  new Array('Genérico', 'Original', 'Similar').forEach(function(cat) {
     var arr = grupos[cat];
     if (arr && arr.length > 0) {
       var icone = cat === 'Genérico' ? '🟡' : (cat === 'Original' ? '🔴' : '🟣');
