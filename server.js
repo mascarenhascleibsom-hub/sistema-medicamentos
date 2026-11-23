@@ -1,6 +1,7 @@
 const express = require('express');
 const { Pool } = require('pg');
 const path = require('path');
+const fs = require('fs');
 
 const app = express();
 app.use(express.json());
@@ -13,22 +14,101 @@ const pool = new Pool({
     : false
 });
 
+let baseAnvisa = new Array();
+
 function normTxt(t) {
   return (t || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').trim();
 }
 
-// Converte termos farmacológicos do Português para o Inglês (DCB -> INN/USAN) para consulta garantida no NIH/RxNorm
-function ptParaEnFarmaco(termo) {
-  let t = normTxt(termo)
-    .replace(/cloridrato de |maleato de |besilato de |tartarato de |hemitartarato de |oxalato de |bromidrato de |succinato de |sulfato de |fosfato de |citrato de |mesilato de |sodica|sodico|potassica|potassico|monoidratada|tri-hidratada|di-hidratada/g, '')
-    .trim();
-  t = t.replace(/ph/g, 'f').replace(/th/g, 't').replace(/y/g, 'i');
-  if (t.endsWith('ina')) return t.slice(0, -1) + 'e';
-  if (t.endsWith('ona')) return t.slice(0, -1) + 'e';
-  if (t.endsWith('ato')) return t.slice(0, -1) + 'e';
-  if (t.endsWith('am')) return t;
-  return t;
+function colAt(arr, idx) {
+  return (arr[idx] || '').replace(/"/g, '').trim();
 }
+
+function carregarCatalogoLocalAnvisa() {
+  const arq = path.join(__dirname, 'DADOS_ABERTOS_MEDICAMENTOS.csv');
+  if (!fs.existsSync(arq)) {
+    console.log('Arquivo DADOS_ABERTOS_MEDICAMENTOS.csv não encontrado na raiz.');
+    return;
+  }
+  try {
+    const buffer = fs.readFileSync(arq);
+    const textoUtf = new TextDecoder('utf-8').decode(buffer);
+    const texto = textoUtf.includes('\uFFFD') || textoUtf.includes('Ã')
+      ? new TextDecoder('latin1').decode(buffer)
+      : textoUtf;
+    const linhas = texto.split(/\r?\n/);
+    if (linhas.length < 2) return;
+
+    // Detecta automaticamente o índice das colunas pelo cabeçalho do CSV da CMED/ANVISA
+    const cab = linhas[0].split(';').map(c => normTxt(c.replace(/"/g, '')));
+    const idxSub = cab.findIndex(c => c === 'substancia' || c.includes('principio'));
+    const idxProd = cab.findIndex(c => c === 'produto' || c.includes('nome_produto'));
+    const idxApres = cab.findIndex(c => c === 'apresentacao');
+    const idxTipo = cab.findIndex(c => c.includes('tipo de produto') || c.includes('categoria'));
+
+    const colSub = idxSub >= 0 ? idxSub : 0;
+    const colProd = idxProd >= 0 ? idxProd : 8;
+    const colApres = idxApres >= 0 ? idxApres : 9;
+    const colTipo = idxTipo >= 0 ? idxTipo : 11;
+
+    const mapa = new Map();
+
+    for (let i = 1; i < linhas.length; i++) {
+      const cols = linhas[i].split(';');
+      if (cols.length <= Math.max(colProd, colSub)) continue;
+
+      const principio = colAt(cols, colSub);
+      const nomeProd = colAt(cols, colProd);
+      const apres = colAt(cols, colApres);
+      const catReg = colAt(cols, colTipo);
+
+      if (!nomeProd && !principio) continue;
+      const nomeFinal = nomeProd || principio;
+
+      let tipo = 'Similar';
+      const cNorm = normTxt(catReg);
+      if (cNorm.includes('generico')) tipo = 'Genérico';
+      else if (cNorm.includes('novo') || cNorm.includes('referencia') || cNorm.includes('biologico') || cNorm.includes('especifico')) tipo = 'Original';
+
+      const chave = normTxt(nomeFinal) + '|' + normTxt(principio);
+      if (!mapa.has(chave)) {
+        mapa.set(chave, {
+          nome: nomeFinal,
+          nomeNorm: normTxt(nomeFinal),
+          principio: principio || nomeFinal,
+          principioNorm: normTxt(principio || nomeFinal),
+          tipo,
+          dosagens: new Set()
+        });
+      }
+
+      if (apres) {
+        // Extrai dosagens (ex: 50 MG, 100.000 UI/G + 200 MG/G, 250 MG/5ML)
+        const matches = apres.match(/\b\d+([.,]\d+)?\s*(mg|mcg|g|ml|ui|unt)(\/[a-z0-9]+)?(\s*\+\s*\d+([.,]\d+)?\s*(mg|mcg|g|ml|ui|unt)(\/[a-z0-9]+)?)?/gi);
+        if (matches) {
+          matches.forEach(m => mapa.get(chave).dosagens.add(m.toUpperCase()));
+        } else {
+          // Se não achou número isolado, guarda a apresentação resumida
+          mapa.get(chave).dosagens.add(apres.slice(0, 35));
+        }
+      }
+    }
+
+    baseAnvisa = Array.from(mapa.values()).map(item => ({
+      nome: item.nome,
+      nomeNorm: item.nomeNorm,
+      principio: item.principio,
+      principioNorm: item.principioNorm,
+      tipo: item.tipo,
+      dosagens: Array.from(item.dosagens)
+    }));
+    console.log('Base CMED/ANVISA indexada com sucesso: ' + baseAnvisa.length + ' medicamentos!');
+  } catch (e) {
+    console.error('Erro ao ler CSV:', e.message);
+  }
+}
+
+carregarCatalogoLocalAnvisa();
 
 async function initDb() {
   try {
@@ -95,52 +175,33 @@ app.delete('/api/medicamentos/:id', async (req, res) => {
   }
 });
 
-// Consulta Universal NIH / RxNorm (Nunca bloqueia e extrai todas as miligramas reais)
-app.get('/api/consultar-farmaco', async (req, res) => {
-  const termo = (req.query.q || '').trim();
-  const substancia = (req.query.sub || '').trim();
-  if (termo.length < 2) return res.json({ principio: '', dosagens: [] });
+app.get('/api/consultar-farmaco', (req, res) => {
+  const termo = normTxt(req.query.q || '');
+  if (termo.length < 2 || baseAnvisa.length === 0) {
+    return res.json({ principio: '', tipo: '', dosagens: new Array(), sugestoes: new Array() });
+  }
 
-  let principio = substancia || '';
-  const dosagens = new Set();
+  // Busca por correspondência exata primeiro, depois início da palavra, depois qualquer parte (includes)
+  const exato = baseAnvisa.find(m => m.nomeNorm === termo || m.principioNorm === termo);
+  const comecaCom = baseAnvisa.filter(m => m.nomeNorm.startsWith(termo) || m.principioNorm.startsWith(termo));
+  const contem = baseAnvisa.filter(m => !m.nomeNorm.startsWith(termo) && !m.principioNorm.startsWith(termo) && (m.nomeNorm.includes(termo) || m.principioNorm.includes(termo)));
 
-  const candidatosBusca = Array.from(new Set([
-    ptParaEnFarmaco(substancia),
-    ptParaEnFarmaco(termo),
-    normTxt(substancia),
-    normTxt(termo)
-  ])).filter(x => x && x.length >= 3);
+  const combinados = comecaCom.concat(contem).slice(0, 20);
+  const escolhido = exato || combinados[0];
 
-  for (const qEn of candidatosBusca) {
-    if (dosagens.size >= 4) break;
-    try {
-      const rRx = await fetch(`https://nih.gov{encodeURIComponent(qEn)}&maxEntries=20`);
-      if (rRx.ok) {
-        const dRx = await rRx.json();
-        const cands = (dRx && dRx.approximateGroup && dRx.approximateGroup.candidate) || [];
-        for (const c of cands.slice(0, 12)) {
-          if (c.rxcui) {
-            const rProps = await fetch(`https://nih.gov{c.rxcui}/properties.json`);
-            if (rProps.ok) {
-              const dProps = await rProps.json();
-              const nomeOficial = dProps && dProps.properties && dProps.properties.name;
-              if (nomeOficial) {
-                if (!principio) {
-                  principio = nomeOficial.replace(/\b\d+([.,]\d+)?\s*(mg|mcg|g|ml|ui|unt).*$/i, '').trim();
-                }
-                const matches = nomeOficial.match(/\b\d+([.,]\d+)?\s*(mg|mcg|g|ml|ui|unt)(\/ml|\/5ml)?\b/gi);
-                if (matches) matches.forEach(m => dosagens.add(m.toLowerCase().replace(/\s+/g, '')));
-              }
-            }
-          }
-        }
-      }
-    } catch (e) {}
+  // Reúne todas as dosagens disponíveis para o medicamento escolhido
+  const todasDosagens = new Set();
+  if (escolhido) {
+    baseAnvisa
+      .filter(m => m.nomeNorm === escolhido.nomeNorm)
+      .forEach(m => m.dosagens.forEach(d => todasDosagens.add(d)));
   }
 
   res.json({
-    principio: principio || '',
-    dosagens: Array.from(dosagens)
+    principio: escolhido ? escolhido.principio : '',
+    tipo: escolhido ? escolhido.tipo : '',
+    dosagens: Array.from(todasDosagens),
+    sugestoes: combinados.map(p => ({ nome: p.nome, principio: p.principio, tipo: p.tipo }))
   });
 });
 
