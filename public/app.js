@@ -391,37 +391,22 @@ function reconhecer(manterDoseAtual) {
     clearTimeout(timerOnline);
     timerOnline = setTimeout(async function() {
       try {
-        document.getElementById('badge-tipo').textContent = '⏳ Buscando na ANVISA...';
-        var r = await fetch('/api/consultar-farmaco?q=' + encodeURIComponent(semDose));
+        var subAtual = achouLocal ? res.principio : '';
+        if (!achouLocal) {
+          document.getElementById('badge-tipo').textContent = '⏳ Buscando substância e mg...';
+        }
+        var r = await fetch('/api/consultar-farmaco?q=' + encodeURIComponent(semDose) + '&sub=' + encodeURIComponent(subAtual));
         var d = await r.json();
 
-        if (d && d.sugestoes && d.sugestoes.length > 0) {
-          var dl = document.getElementById('sugestoes-anvisa');
-          if (dl) {
-            dl.innerHTML = '';
-            d.sugestoes.forEach(function(sug) {
-              var opt = el('option');
-              opt.value = sug.nome;
-              opt.textContent = sug.principio + ' (' + sug.tipo + ')';
-              dl.appendChild(opt);
-            });
-          }
-        }
-
-        if (d && d.principio && (!achouLocal || norm(d.principio) !== norm(semDose))) {
+        if (d && d.principio && !achouLocal) {
           document.getElementById('principio').value = d.principio;
-        }
-        if (d && d.tipo) {
-          document.getElementById('tipo_med').value = d.tipo;
-          document.getElementById('badge-tipo').textContent = '✓ ' + d.tipo + ' (ANVISA)';
-        } else if (achouLocal) {
-          document.getElementById('badge-tipo').textContent = '✓ ' + res.tipo;
-        } else {
+          document.getElementById('badge-tipo').textContent = '✓ ' + (res ? res.tipo : 'Similar');
+        } else if (!achouLocal) {
           document.getElementById('badge-tipo').textContent = '✓ Similar';
         }
 
         var sel = document.getElementById('dosagem_sel');
-        var temOpcoesLocais = typeof window.buscarOpcoesMedicamento === 'function' && window.buscarOpcoesMedicamento(semDose, '').length > 0;
+        var temOpcoesLocais = typeof window.buscarOpcoesMedicamento === 'function' && window.buscarOpcoesMedicamento(semDose, subAtual).length > 0;
         if (!temOpcoesLocais && d && d.dosagens && d.dosagens.length > 0) {
           sel.innerHTML = '<option value="">▼ Clique e escolha a mg (' + d.dosagens.length + ')...</option>';
           d.dosagens.forEach(function(dose) {
@@ -442,6 +427,7 @@ function reconhecer(manterDoseAtual) {
     }, 350);
   }
 }
+
 
 function avisar(msg) {
   var t = document.getElementById('toast');
