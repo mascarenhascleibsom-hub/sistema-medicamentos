@@ -134,21 +134,43 @@ function selecionarCategoria(cat) {
   });
 }
 
-  var caixasFundo = [
-    "data:image/svg+xml;utf8,<svg xmlns='http://w3.org' width='900' height='600' viewBox='0 0 900 600'><g transform='rotate(-14 550 300)'><rect x='340' y='130' width='440' height='250' rx='22' fill='%23ffffff' stroke='%234c1d95' stroke-width='6'/><rect x='340' y='305' width='440' height='75' rx='8' fill='%23facc15'/><text x='375' y='190' font-family='Arial' font-size='22' font-weight='bold' fill='%236d28d9'>✚ FARMAGERCI • GENÉRICO</text><text x='375' y='245' font-family='Arial' font-size='38' font-weight='bold' fill='%231e1b4b'>Losartana 50mg</text><text x='375' y='282' font-family='Arial' font-size='20' fill='%23475569'>30 Comprimidos Revestidos</text><text x='375' y='353' font-family='Arial' font-size='34' font-weight='900' fill='%231e1b4b'>G • MEDICAMENTO GENÉRICO</text></g></svg>",
-    "data:image/svg+xml;utf8,<svg xmlns='http://w3.org' width='900' height='600' viewBox='0 0 900 600'><g transform='rotate(-12 550 300)'><rect x='340' y='130' width='440' height='250' rx='22' fill='%23ffffff' stroke='%234c1d95' stroke-width='6'/><rect x='340' y='305' width='440' height='75' rx='8' fill='%23dc2626'/><text x='375' y='190' font-family='Arial' font-size='22' font-weight='bold' fill='%236d28d9'>✚ REFERÊNCIA • ORIGINAL</text><text x='375' y='245' font-family='Arial' font-size='38' font-weight='bold' fill='%231e1b4b'>Apresolina 50mg</text><text x='375' y='282' font-family='Arial' font-size='20' fill='%23475569'>Cloridrato de Hidralazina</text><text x='375' y='353' font-family='Arial' font-size='28' font-weight='900' fill='%23ffffff'>VENDA SOB PRESCRIÇÃO MÉDICA</text></g></svg>",
-    "data:image/svg+xml;utf8,<svg xmlns='http://w3.org' width='900' height='600' viewBox='0 0 900 600'><g transform='rotate(-15 550 300)'><rect x='340' y='130' width='440' height='250' rx='22' fill='%23ffffff' stroke='%234c1d95' stroke-width='6'/><rect x='340' y='305' width='440' height='75' rx='8' fill='%237c3aed'/><text x='375' y='190' font-family='Arial' font-size='22' font-weight='bold' fill='%236d28d9'>✚ INJETÁVEL • DIABETES</text><text x='375' y='245' font-family='Arial' font-size='38' font-weight='bold' fill='%231e1b4b'>Insulina NPH 100UI</text><text x='375' y='282' font-family='Arial' font-size='20' fill='%23475569'>Suspensão Injetável • Frasco/Caneta</text><text x='375' y='353' font-family='Arial' font-size='28' font-weight='900' fill='%23ffffff'>FARMAGERCI • USO SUBCUTÂNEO</text></g></svg>",
-    "data:image/svg+xml;utf8,<svg xmlns='http://w3.org' width='900' height='600' viewBox='0 0 900 600'><g transform='rotate(-11 550 300)'><rect x='340' y='130' width='440' height='250' rx='22' fill='%23ffffff' stroke='%234c1d95' stroke-width='6'/><rect x='340' y='305' width='440' height='75' rx='8' fill='%23facc15'/><text x='375' y='190' font-family='Arial' font-size='22' font-weight='bold' fill='%236d28d9'>✚ ANTIBIÓTICO • GENÉRICO</text><text x='375' y='245' font-family='Arial' font-size='38' font-weight='bold' fill='%231e1b4b'>Amoxicilina 500mg</text><text x='375' y='282' font-family='Arial' font-size='20' fill='%23475569'>21 Cápsulas • Uso Oral</text><text x='375' y='353' font-family='Arial' font-size='34' font-weight='900' fill='%231e1b4b'>G • MEDICAMENTO GENÉRICO</text></g></svg>",
-    "data:image/svg+xml;utf8,<svg xmlns='http://w3.org' width='900' height='600' viewBox='0 0 900 600'><g transform='rotate(-13 550 300)'><rect x='340' y='130' width='440' height='250' rx='22' fill='%23ffffff' stroke='%234c1d95' stroke-width='6'/><rect x='340' y='305' width='440' height='75' rx='8' fill='%237c3aed'/><text x='375' y='190' font-family='Arial' font-size='22' font-weight='bold' fill='%236d28d9'>✚ SUPLEMENTO • VITAMINA D3</text><text x='375' y='245' font-family='Arial' font-size='38' font-weight='bold' fill='%231e1b4b'>Addera D3 7.000UI</text><text x='375' y='282' font-family='Arial' font-size='20' fill='%23475569'>Colecalciferol • 30 Comprimidos</text><text x='375' y='353' font-family='Arial' font-size='28' font-weight='900' fill='%23ffffff'>SIMILAR • LINHA SAÚDE</text></g></svg>"
+function aplicarCaixaFundo(root) {
+  var modelos = [
+    { nome: 'Losartana 50mg', sub: '30 Comprimidos Revestidos', tarja: '#facc15', corTxt: '#1e1b4b', textoTarja: 'G • MEDICAMENTO GENÉRICO' },
+    { nome: 'Apresolina 50mg', sub: 'Cloridrato de Hidralazina', tarja: '#dc2626', corTxt: '#ffffff', textoTarja: 'REFERÊNCIA • PRESCRIÇÃO MÉDICA' },
+    { nome: 'Insulina NPH 100UI', sub: 'Suspensão Injetável • Caneta', tarja: '#7c3aed', corTxt: '#ffffff', textoTarja: 'FARMAGERCI • USO SUBCUTÂNEO' },
+    { nome: 'Amoxicilina 500mg', sub: '21 Cápsulas • Antibiótico', tarja: '#facc15', corTxt: '#1e1b4b', textoTarja: 'G • MEDICAMENTO GENÉRICO' },
+    { nome: 'Addera D3 7.000UI', sub: 'Colecalciferol • 30 Comprimidos', tarja: '#7c3aed', corTxt: '#ffffff', textoTarja: 'SIMILAR • LINHA SAÚDE' }
   ];
   var idxAnterior = Number(localStorage.getItem('fg_bg_idx') || -1);
-  var novoIdx = (idxAnterior + 1) % caixasFundo.length;
+  var novoIdx = (idxAnterior + 1) % modelos.length;
   localStorage.setItem('fg_bg_idx', String(novoIdx));
+  var item = modelos[novoIdx];
 
   var bgDiv = el('div', '');
   bgDiv.id = 'bg-remedio';
-  bgDiv.style.cssText = 'position:fixed;inset:0;z-index:0;background-size:contain;background-position:right bottom;background-repeat:no-repeat;opacity:0.22;pointer-events:none;background-image:url("' + caixasFundo[novoIdx] + '")';
+  bgDiv.style.cssText = 'position:fixed;right:40px;bottom:40px;width:420px;height:230px;background:#fff;border:4px solid #6d28d9;border-radius:26px;box-shadow:-16px 20px 0 rgba(109,40,217,0.22);transform:rotate(-11deg);opacity:0.22;pointer-events:none;z-index:0;display:flex;flex-direction:column;justify-content:space-between;padding:22px 26px;overflow:hidden;';
+
+  var topo = el('div', '', '✚ FARMAGERCI • CATÁLOGO');
+  topo.style.cssText = 'font-size:13px;font-weight:800;color:#6d28d9;letter-spacing:1px;';
+  var tit = el('div', '', item.nome);
+  tit.style.cssText = 'font-size:32px;font-weight:800;color:#1e1b4b;line-height:1.1;';
+  var sub = el('div', '', item.sub);
+  sub.style.cssText = 'font-size:15px;font-weight:600;color:#475569;';
+  var faixa = el('div', '', item.textoTarja);
+  faixa.style.cssText = 'margin:0 -26px -22px;padding:14px 26px;font-size:16px;font-weight:900;background:' + item.tarja + ';color:' + item.corTxt + ';';
+
+  bgDiv.appendChild(topo);
+  bgDiv.appendChild(tit);
+  bgDiv.appendChild(sub);
+  bgDiv.appendChild(faixa);
   root.appendChild(bgDiv);
+}
+
+function montarTela() {
+  var root = document.getElementById('app');
+  root.innerHTML = '';
+  aplicarCaixaFundo(root);
 
   var toast = el('div', 'toast', 'Salvo!');
   toast.id = 'toast';
@@ -409,7 +431,7 @@ function preencherSetinha(semDose, substanciaBase, doseExtraida, textoCompleto) 
   var inpD = document.getElementById('dosagem');
   if (!sel || !inpD) return;
 
-  var opcoes = [];
+  var opcoes = new Array();
   if (typeof window.buscarOpcoesMedicamento === 'function') {
     opcoes = window.buscarOpcoesMedicamento(semDose, substanciaBase);
   }
@@ -468,7 +490,7 @@ function reconhecer(manterDoseAtual) {
 
   for (var i = 0; i < partes.length; i++) {
     var p = partes[i].toLowerCase();
-    if (p.indexOf('mg') > 0 || p.indexOf('ml') > 0 || p.indexOf('mcg') > 0 || p.indexOf('ui') > 0 || (p.length > 1 && p.endsWith('g') && !isNaN(p[0]))) {
+    if (p.indexOf('mg') > 0 || p.indexOf('ml') > 0 || p.indexOf('mcg') > 0 || p.indexOf('ui') > 0 || (p.length > 1 && p.endsWith('g') && !isNaN(p))) {
       doseExtraida = partes[i];
       semDose = txt.replace(partes[i], '').trim();
     }
