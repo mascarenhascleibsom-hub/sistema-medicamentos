@@ -151,14 +151,12 @@ async function aplicarCaixaFundo(root) {
     var dados = await resp.json();
     var pages = dados && dados.query && dados.query.pages ? Object.values(dados.query.pages) : new Array();
     var validas = pages.filter(function(p) {
-      var u = p.imageinfo && p.imageinfo.shift().thumburl;
+      var u = p.imageinfo && p.imageinfo.slice(0, 1).shift().thumburl;
       return u && (u.toLowerCase().indexOf('.jpg') !== -1 || u.toLowerCase().indexOf('.png') !== -1);
     });
     if (validas.length > 0) {
       var escolhida = validas[Math.floor(Math.random() * validas.length)];
-      var r2 = await fetch('https://wikimedia.org' + escolhida.pageid + '&prop=imageinfo&iiprop=url&iiurlwidth=1280&format=json&origin=*');
-      var d2 = await r2.json();
-      var info = d2.query.pages[escolhida.pageid].imageinfo.shift();
+      var info = escolhida.imageinfo.slice(0, 1).shift();
       if (info && info.thumburl) {
         bgDiv.style.backgroundImage = 'url("' + info.thumburl + '")';
       }
@@ -211,9 +209,9 @@ function montarTela() {
 
   var hero = el('section', 'hero');
   var hLeft = el('div');
-  hLeft.appendChild(el('span', 'hero-tag', 'SISTEMA FARMACÊUTICO FARMAGERCI • BRASIL A–Z'));
+  hLeft.appendChild(el('span', 'hero-tag', 'SISTEMA FARMACÊUTICO FARMAGERCI • BASE OFICIAL BRASIL'));
   hLeft.appendChild(el('h2', '', 'Central de Falta & Reposição'));
-  hLeft.appendChild(el('p', '', 'Reconhecimento automático de Genéricos, Similares, Originais, Insulinas e Associações com seleção rápida de miligramas.'));
+  hLeft.appendChild(el('p', '', 'Reconhecimento completo de Genéricos, Similares, Originais, Insulinas e Associações com seleção rápida de miligramas.'));
   hero.appendChild(hLeft);
   var hBtn = el('button', 'btn btn-w', '+ Novo Medicamento');
   hBtn.onclick = abrirModalNovo;
@@ -290,7 +288,7 @@ function montarTela() {
 
   var fg1 = el('div', 'fg');
   var lb1 = el('label');
-  lb1.appendChild(el('span', '', 'Medicamento (ex: Apresolina, Insulina NPH, Tylenol, Trazodona) *'));
+  lb1.appendChild(el('span', '', 'Medicamento (ex: Nistatina, Apresolina, Insulina NPH, Trazodona) *'));
   var bTipo = el('span', '', '');
   bTipo.id = 'badge-tipo';
   bTipo.style.color = '#7c3aed';
@@ -301,7 +299,7 @@ function montarTela() {
   iNome.id = 'nome';
   iNome.autocomplete = 'off';
   iNome.required = true;
-  iNome.placeholder = 'Digite qualquer medicamento de A a Z...';
+  iNome.placeholder = 'Digite qualquer medicamento da base oficial...';
   iNome.oninput = function() { reconhecer(false); };
   fg1.appendChild(iNome);
 
@@ -516,22 +514,37 @@ function reconhecer(manterDoseAtual) {
     clearTimeout(timerOnline);
     timerOnline = setTimeout(async function() {
       try {
-        var subAtual = achouLocal ? res.principio : '';
         if (!achouLocal) {
-          document.getElementById('badge-tipo').textContent = '⏳ Buscando substância e mg...';
+          document.getElementById('badge-tipo').textContent = '⏳ Buscando na base ANVISA...';
         }
-        var r = await fetch('/api/consultar-farmaco?q=' + encodeURIComponent(semDose) + '&sub=' + encodeURIComponent(subAtual));
+        var r = await fetch('/api/consultar-farmaco?q=' + encodeURIComponent(semDose));
         var d = await r.json();
 
-        if (d && d.principio && !achouLocal) {
+        if (d && d.sugestoes && d.sugestoes.length > 0) {
+          var dl = document.getElementById('sugestoes-anvisa');
+          if (dl) {
+            dl.innerHTML = '';
+            d.sugestoes.forEach(function(sug) {
+              var opt = el('option');
+              opt.value = sug.nome;
+              opt.textContent = sug.principio + ' (' + sug.tipo + ')';
+              dl.appendChild(opt);
+            });
+          }
+        }
+
+        if (d && d.principio) {
           document.getElementById('principio').value = d.principio;
-          document.getElementById('badge-tipo').textContent = '✓ ' + document.getElementById('tipo_med').value;
+          if (d.tipo) {
+            selecionarCategoria(d.tipo);
+            document.getElementById('badge-tipo').textContent = '✓ ' + d.tipo + ' (ANVISA)';
+          }
         } else if (!achouLocal) {
           document.getElementById('badge-tipo').textContent = '✓ ' + document.getElementById('tipo_med').value;
         }
 
         var sel = document.getElementById('dosagem_sel');
-        var temOpcoesLocais = typeof window.buscarOpcoesMedicamento === 'function' && window.buscarOpcoesMedicamento(semDose, subAtual).length > 0;
+        var temOpcoesLocais = typeof window.buscarOpcoesMedicamento === 'function' && window.buscarOpcoesMedicamento(semDose, d.principio || '').length > 0;
         if (!temOpcoesLocais && d && d.dosagens && d.dosagens.length > 0) {
           sel.innerHTML = '<option value="">▼ Clique e escolha a mg (' + d.dosagens.length + ')...</option>';
           d.dosagens.forEach(function(dose) {
@@ -549,7 +562,7 @@ function reconhecer(manterDoseAtual) {
           document.getElementById('dosagem').style.display = 'none';
         }
       } catch (e) {}
-    }, 350);
+    }, 280);
   }
 }
 
