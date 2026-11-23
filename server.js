@@ -39,8 +39,8 @@ function carregarCatalogoLocalAnvisa() {
     const linhas = texto.split(/\r?\n/);
     if (linhas.length < 2) return;
 
-    // Detecta automaticamente o índice das colunas pelo cabeçalho do CSV da CMED/ANVISA
-    const cab = linhas[0].split(';').map(c => normTxt(c.replace(/"/g, '')));
+    const primeiraLinha = linhas.slice(0, 1).shift() || '';
+    const cab = primeiraLinha.split(';').map(c => normTxt(c.replace(/"/g, '')));
     const idxSub = cab.findIndex(c => c === 'substancia' || c.includes('principio'));
     const idxProd = cab.findIndex(c => c === 'produto' || c.includes('nome_produto'));
     const idxApres = cab.findIndex(c => c === 'apresentacao');
@@ -83,13 +83,11 @@ function carregarCatalogoLocalAnvisa() {
       }
 
       if (apres) {
-        // Extrai dosagens (ex: 50 MG, 100.000 UI/G + 200 MG/G, 250 MG/5ML)
-        const matches = apres.match(/\b\d+([.,]\d+)?\s*(mg|mcg|g|ml|ui|unt)(\/[a-z0-9]+)?(\s*\+\s*\d+([.,]\d+)?\s*(mg|mcg|g|ml|ui|unt)(\/[a-z0-9]+)?)?/gi);
+        const matches = apres.match(/\b\d+(\d+)?\s*(mg|mcg|g|ml|ui|unt)(\/[a-z0-9]+)?(\s*\+\s*\d+(\d+)?\s*(mg|mcg|g|ml|ui|unt)(\/[a-z0-9]+)?)?/gi);
         if (matches) {
           matches.forEach(m => mapa.get(chave).dosagens.add(m.toUpperCase()));
         } else {
-          // Se não achou número isolado, guarda a apresentação resumida
-          mapa.get(chave).dosagens.add(apres.slice(0, 35));
+          mapa.get(chave).dosagens.add(apres.slice(0, 38));
         }
       }
     }
@@ -181,19 +179,22 @@ app.get('/api/consultar-farmaco', (req, res) => {
     return res.json({ principio: '', tipo: '', dosagens: new Array(), sugestoes: new Array() });
   }
 
-  // Busca por correspondência exata primeiro, depois início da palavra, depois qualquer parte (includes)
+  const palavras = termo.split(/\s+/).filter(Boolean);
   const exato = baseAnvisa.find(m => m.nomeNorm === termo || m.principioNorm === termo);
   const comecaCom = baseAnvisa.filter(m => m.nomeNorm.startsWith(termo) || m.principioNorm.startsWith(termo));
-  const contem = baseAnvisa.filter(m => !m.nomeNorm.startsWith(termo) && !m.principioNorm.startsWith(termo) && (m.nomeNorm.includes(termo) || m.principioNorm.includes(termo)));
+  const contemTodas = baseAnvisa.filter(m =>
+    !m.nomeNorm.startsWith(termo) &&
+    !m.principioNorm.startsWith(termo) &&
+    palavras.every(p => m.nomeNorm.includes(p) || m.principioNorm.includes(p))
+  );
 
-  const combinados = comecaCom.concat(contem).slice(0, 20);
-  const escolhido = exato || combinados[0];
+  const combinados = comecaCom.concat(contemTodas).slice(0, 20);
+  const escolhido = exato || combinados.slice(0, 1).shift();
 
-  // Reúne todas as dosagens disponíveis para o medicamento escolhido
   const todasDosagens = new Set();
   if (escolhido) {
     baseAnvisa
-      .filter(m => m.nomeNorm === escolhido.nomeNorm)
+      .filter(m => m.nomeNorm === escolhido.nomeNorm && m.principioNorm === escolhido.principioNorm)
       .forEach(m => m.dosagens.forEach(d => todasDosagens.add(d)));
   }
 
