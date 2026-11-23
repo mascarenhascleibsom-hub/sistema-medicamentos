@@ -106,7 +106,7 @@ function montarTela() {
   var hLeft = el('div');
   hLeft.appendChild(el('span', 'hero-tag', 'SISTEMA NEURAL FARMAGERCI • ANVISA SYNC'));
   hLeft.appendChild(el('h2', '', 'Central Inteligente de Falta A–Z'));
-  hLeft.appendChild(el('p', '', 'Identificação automática de Genéricos, Similares, Originais, Insulinas e Associações direto da base farmacológica.'));
+  hLeft.appendChild(el('p', '', 'Identificação automática de Genéricos, Similares, Originais, Insulinas e Associações direto da base oficial da ANVISA.'));
   hero.appendChild(hLeft);
   var hBtn = el('button', 'btn btn-w', '+ Novo Medicamento');
   hBtn.onclick = abrirModalNovo;
@@ -197,6 +197,11 @@ function montarTela() {
   iNome.placeholder = 'Digite qualquer medicamento de A a Z...';
   iNome.oninput = reconhecer;
   fg1.appendChild(iNome);
+
+  var dl = el('datalist');
+  dl.id = 'sugestoes-anvisa';
+  iNome.setAttribute('list', 'sugestoes-anvisa');
+  fg1.appendChild(dl);
   form.appendChild(fg1);
 
   var row1 = el('div', 'frow');
@@ -377,7 +382,7 @@ function reconhecer() {
 
   preencherSetinha(semDose, res ? res.principio : '', doseExtraida, txt);
 
-  if (semDose.length >= 3) {
+  if (semDose.length >= 2) {
     clearTimeout(timerOnline);
     timerOnline = setTimeout(async function() {
       try {
@@ -386,6 +391,19 @@ function reconhecer() {
         }
         var r = await fetch('/api/consultar-farmaco?q=' + encodeURIComponent(semDose));
         var d = await r.json();
+
+        if (d && d.sugestoes && d.sugestoes.length > 0) {
+          var dl = document.getElementById('sugestoes-anvisa');
+          if (dl) {
+            dl.innerHTML = '';
+            d.sugestoes.forEach(function(sug) {
+              var opt = el('option');
+              opt.value = sug.nome;
+              opt.textContent = sug.principio + ' (' + sug.tipo + ')';
+              dl.appendChild(opt);
+            });
+          }
+        }
 
         if (d && d.principio && !achouLocal) {
           document.getElementById('principio').value = d.principio;
@@ -400,7 +418,7 @@ function reconhecer() {
         if (d && d.dosagens && d.dosagens.length > 0) {
           var sel = document.getElementById('dosagem_sel');
           if (!sel.value) {
-            sel.innerHTML = '<option value="">▼ Escolha a mg oficial encontrada (' + d.dosagens.length + ')...</option>';
+            sel.innerHTML = '<option value="">▼ Escolha a mg oficial (' + d.dosagens.length + ')...</option>';
             d.dosagens.forEach(function(dose) {
               var o = el('option', '', dose);
               o.value = dose;
@@ -417,7 +435,7 @@ function reconhecer() {
           }
         }
       } catch (e) {}
-    }, 450);
+    }, 350);
   }
 }
 
@@ -675,6 +693,8 @@ function copiarPedido() {
   var itens = obterFiltrados();
   if (!itens.length) { avisar('Nenhum item nesta lista para copiar!'); return; }
   var txt = '*LISTA FARMAGERCI (' + filtroAtivo + ')*\n\n' + itens.map(function(m) {
+    return '- ' + m.nome + (m.dosagem ? ' [' + m.dosagem + ']' : '') + ' — ' + (m.principio_ativo || m.nome) + ' (' + tipoDe(m) + ')';
+  }).join('\n');
   navigator.clipboard.writeText(txt);
   avisar('Lista copiada para o WhatsApp!');
 }
